@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "historyId": "df1c33c2-89f8-4050-b35e-58424b462642",
+  "currentRevision": null,
+  "pendingChanges": false,
+  "files": {
+    "assets/d3.min.js": {
+      "hash": "f2094bbf6141b359722c4fe454eb6c4b0f0e42cc10cc7af921fc158fceb86539",
+      "content": "/root/.cache/hyperframes/history/df1c33c2-89f8-4050-b35e-58424b462642/blobs/f2/f2094bbf6141b359722c4fe454eb6c4b0f0e42cc10cc7af921fc158fceb86539"
+    },
+    "assets/geo.js": {
+      "hash": "c002d89248ed7188855c219a4e98a77adb8c45b7ce8de360657a43b5b77fe809",
+      "content": "/root/.cache/hyperframes/history/df1c33c2-89f8-4050-b35e-58424b462642/blobs/c0/c002d89248ed7188855c219a4e98a77adb8c45b7ce8de360657a43b5b77fe809"
+    },
+    "assets/gsap.min.js": {
+      "hash": "c174bfce53a729418d57a8ad8625e7247c793a22fef8e2851e3cfa3de9cd8280",
+      "content": "/root/.cache/hyperframes/history/df1c33c2-89f8-4050-b35e-58424b462642/blobs/c1/c174bfce53a729418d57a8ad8625e7247c793a22fef8e2851e3cfa3de9cd8280"
+    },
+    "assets/lilita-one-latin-400-normal.woff2": {
+      "hash": "d2575d4fa3632580aafcbcdf6978b3b57e144b90cf5bd9c2c98194f28b869704",
+      "content": "/root/.cache/hyperframes/history/df1c33c2-89f8-4050-b35e-58424b462642/blobs/d2/d2575d4fa3632580aafcbcdf6978b3b57e144b90cf5bd9c2c98194f28b869704"
+    },
+    "assets/patrick-hand-latin-400-normal.woff2": {
+      "hash": "ac5bc9033b2572bf84d39f7150c1634e37ed16e8dbee632d6d0bceac0bbf0199",
+      "content": "/root/.cache/hyperframes/history/df1c33c2-89f8-4050-b35e-58424b462642/blobs/ac/ac5bc9033b2572bf84d39f7150c1634e37ed16e8dbee632d6d0bceac0bbf0199"
+    },
+    "assets/rubik-latin-700-normal.woff2": {
+      "hash": "e423f8ae1668156addf5e32f1056d5b22b5b113a9a23afd364df84a6fa88602d",
+      "content": "/root/.cache/hyperframes/history/df1c33c2-89f8-4050-b35e-58424b462642/blobs/e4/e423f8ae1668156addf5e32f1056d5b22b5b113a9a23afd364df84a6fa88602d"
+    },
+    "assets/rubik-latin-900-normal.woff2": {
+      "hash": "9ab80489aea97335ef86ea6d7386e5ffbf57a2abeeaea8da6f84c694c87792ad",
+      "content": "/root/.cache/hyperframes/history/df1c33c2-89f8-4050-b35e-58424b462642/blobs/9a/9ab80489aea97335ef86ea6d7386e5ffbf57a2abeeaea8da6f84c694c87792ad"
+    },
+    "assets/topojson-client.min.js": {
+      "hash": "25cd02ae486cc5063e0215a4e4cfb15de83700c87ac48bac4d57dc6aaf3ebb89",
+      "content": "/root/.cache/hyperframes/history/df1c33c2-89f8-4050-b35e-58424b462642/blobs/25/25cd02ae486cc5063e0215a4e4cfb15de83700c87ac48bac4d57dc6aaf3ebb89"
+    },
+    "index.html": {
+      "hash": "b7c3246947f9c84fb64a9dd4deb88035a97d64205fdaaf0e84a617d6cec3edd5",
+      "content": "/root/.cache/hyperframes/history/df1c33c2-89f8-4050-b35e-58424b462642/blobs/b7/b7c3246947f9c84fb64a9dd4deb88035a97d64205fdaaf0e84a617d6cec3edd5"
+    }
+  },
+  "revisions": {},
+  "checks": {
+    "latest": null,
+    "revisions": {},
+    "unversioned": []
+  },
+  "snapshots": {
+    "latest": null,
+    "revisions": {},
+    "unversioned": []
+  },
+  "renders": {
+    "latest": {
+      "id": "04017dcd-fd5b-414a-bfcc-3789f9015ef6",
+      "completedAt": 1794515815892,
+      "output": "/home/user/HYPERFRAMES/proyectos/donde-naceras/renders/donde-naceras.mp4",
+      "status": "completed",
+      "revision": null
+    },
+    "retainedRevisions": []
+  },
+  "pendingArtifactCleanup": []
+}
