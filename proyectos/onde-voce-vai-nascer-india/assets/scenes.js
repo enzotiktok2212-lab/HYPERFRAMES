@@ -118,15 +118,15 @@
       const sp = path({ type: "Sphere" }); ocean.attr("d", sp); shade.attr("d", sp); grat.attr("d", path(G10)); land.attr("d", path(R > 900 ? GEO.land : GEO.land110));
       inP.attr("d", path(GEO.in)).attr("opacity", inA); const p = proj(MUM); dot.attr("cx", p[0]).attr("cy", p[1]).attr("opacity", dotA); return proj; };
     const orbit = L.div(w, "", "position:absolute;left:0;top:0;width:1080px;height:1920px;z-index:10;transform-origin:540px 1040px", "", id + "-orbit");
-    const pin = L.svg(orbit, `<path d="M38 70 L50 190 L62 70 Z" fill="#ff3b30" stroke="#1f1a17" stroke-width="7" stroke-linejoin="round"/><circle cx="50" cy="48" r="40" fill="#fff" stroke="#1f1a17" stroke-width="8"/><circle cx="50" cy="48" r="15" fill="#1f1a17"/>`, 490, 1040 - 380 - 196, 100, 200, 10, id + "-pin");
-    pin.style.transformOrigin = "50px 48px";
+    const pin = L.svg(orbit, `<path d="M38 70 L50 190 L62 70 Z" fill="#ff3b30" stroke="#1f1a17" stroke-width="7" stroke-linejoin="round"/><circle cx="50" cy="48" r="40" fill="#fff" stroke="#1f1a17" stroke-width="8"/><circle cx="50" cy="48" r="15" fill="#1f1a17"/>`, 490, 869 - 190, 100, 200, 10, id + "-pin");
+    pin.style.transformOrigin = "50px 190px";
     const title = L.div(w, "title", "top:230px;font-size:88px;z-index:12", titleHTML, id + "-title");
     return { w, draw, pin, orbit, title };
   }
   const A = globeSet("A", 0, `ONDE VOCÊ VAI<br/>NASCER<br/><span class="y">DESSA VEZ?</span>`, 3);
   const tStop = st(1) - 0.05, ORB = 1080, NOTCH = 30;
   const k3 = (t) => { const k = Math.min(1, Math.max(0, t / tStop)); return 1 - Math.pow(1 - k, 3); };
-  const theta = (t) => -ORB * (1 - k3(t));
+  const theta = (t) => -720 * (1 - k3(t)); // giro del globo en grados
   const ticksA = []; { let last = Math.floor(theta(0) / NOTCH), lt = -1; for (let t = 0; t <= tStop; t += 1 / 600) { const c = Math.floor(theta(t) / NOTCH); if (c !== last) { last = c; if (t - lt > 0.04) { ticksA.push(t); lt = t; } } } }
   ticksA.forEach((t) => sfx(t, "tick", 0.9));
   const flick = (ticks, t) => { let lt = -9; for (const x of ticks) { if (x <= t) lt = x; else break; } return -22 * Math.exp(-(t - lt) / 0.045); };
@@ -141,8 +141,8 @@
     lam = lam + (-72.88 - lam) * z2; phi = phi + (-19.08 - phi) * z2; R = R + (9000 - R) * z2;
     const proj = A.draw(lam, phi, R, cl01((t - tStick) / 0.15), cl01((t - tZ2 - 0.45) / 0.2));
     const p = proj(IN), pm = proj(MUM);
-    if (t < tStick) { A.orbit.style.transform = `rotate(${theta(t)}deg)`; A.pin.style.transform = `rotate(${flick(ticksA, t)}deg)`; }
-    else { A.orbit.style.transform = "none"; const s = ease(cl01((t - tStick) / 0.22)); A.pin.style.transform = `translate(${(p[0] - 540) * s}px,${(p[1] - 654) * s}px)`; }
+    const f = t < tStick ? flick(ticksA, t) * 0.45 : 0, b = t < tStick ? -Math.abs(flick(ticksA, t)) * 0.25 : 0;
+    A.pin.style.transform = t < tZ1 ? `translateY(${b}px) rotate(${f}deg)` : `translate(${p[0] - 540}px,${p[1] - 869}px)`;
     lblM.style.left = pm[0] + "px"; lblM.style.top = pm[1] - 30 + "px";
   }
   tl.to({ v: 0 }, { v: 1, duration: st(3) + 0.4, ease: "none", onUpdate() { drawA(this.time()); } }, 0); drawA(0);
@@ -462,7 +462,7 @@
   { const t0 = startOf(56); const G = globeSet("Y", t0, `ONDE VOCÊ VAI<br/>NASCER<br/><span class="y">DA PRÓXIMA VEZ?</span>`, 9); SETS[SETS.length - 1].trans = "fade";
     const th = (t) => -900 * (t / 3.2); const tk = []; { let last = Math.floor(th(0) / NOTCH); for (let t = 0; t < 3.5; t += 1 / 600) { const c = Math.floor(th(t) / NOTCH); if (c !== last) { last = c; tk.push(t); } } }
     tk.forEach((t) => sfx(t0 + t, "tick", 0.8));
-    tl.to({ v: 0 }, { v: 1, duration: TOTAL - t0, ease: "none", onUpdate() { const t = this.time(); G.draw(-79 + 220 * t, -10, 380, 0, 0); G.orbit.style.transform = `rotate(${th(t)}deg)`; G.pin.style.transform = `rotate(${flick(tk, t)}deg)`; } }, t0);
+    tl.to({ v: 0 }, { v: 1, duration: TOTAL - t0, ease: "none", onUpdate() { const t = this.time(); G.draw(-79 + 220 * t, -10, 380, 0, 0); G.pin.style.transform = `translateY(${-Math.abs(flick(tk, t)) * 0.25}px) rotate(${flick(tk, t) * 0.45}deg)`; } }, t0);
     G.draw(-79, -10, 380, 0, 0);
     tl.fromTo(G.w, { scale: 1.9 }, { scale: 1, duration: 0.38, ease: "power4.out" }, t0); sfx(t0, "zoomin", 1.1);
     tl.to(G.w, { scale: 1.08, duration: 1.0, ease: "sine.inOut" }, t0 + 0.4); sfx(t0 + 0.4, "zoomslow", 0.7); cam(G.w, t0 + 1.4, { scale: 0.94 }, 0.35, "zoomout", "power3.out");
