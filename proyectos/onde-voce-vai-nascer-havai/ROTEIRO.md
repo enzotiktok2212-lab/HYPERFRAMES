@@ -1,6 +1,7 @@
 # Roteiro — «Onde você vai nascer dessa vez?» · HAVAÍ 🌺
 
 Remake em PT-BR do vídeo de referência (Honolulu): mesma informação e mesma ordem, frases mais curtas.
+Duração-alvo: igual à do original (~1:46 de conteúdo, sem a tela final do TikTok).
 Protagonista: **Makoa** (antes Kai) · Esposa: **Malia** (antes Leilani).
 
 ## Texto limpo (pra colar no ElevenLabs)
@@ -25,7 +26,7 @@ Por isso, entrega "no dia seguinte" chega… semana que vem.
 
 O alfabeto havaiano tem só treze letras.
 
-E é assim que nasce o nome do peixe oficial do estado: humuhumunukunukuāpuaʻa.
+Por isso, o peixe oficial se chama: humuhumunukunukuāpuaʻa.
 
 Outdoor é proibido aqui desde 1927.
 
@@ -39,7 +40,7 @@ No jantar, prato feito com duas bolas de arroz.
 
 O Havaí come quase sete milhões de latas de SPAM por ano.
 
-Aos cinco, você aprende a surfar antes de aprender a amarrar o sapato.
+Aos cinco, você aprende a surfar antes de amarrar o sapato.
 
 E nunca precisa aprender.
 
@@ -57,7 +58,7 @@ e as crianças dançam hula na escola.
 
 Aos vinte e dois, você se muda pra Las Vegas.
 
-Tem tanto havaiano lá que a cidade ganhou um apelido: a "Nona Ilha".
+Tem tanto havaiano lá que chamam de "Nona Ilha".
 
 Você vai de chinelo pro cassino.
 
