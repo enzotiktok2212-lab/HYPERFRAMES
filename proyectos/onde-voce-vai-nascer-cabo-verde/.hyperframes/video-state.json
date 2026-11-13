@@ -1,7 +1,7 @@
 {
   "version": 1,
   "historyId": "e165f940-a71a-4461-b810-fc0e7a7adb96",
-  "currentRevision": null,
+  "currentRevision": "5c5f55ba-8761-4d4f-bf52-f548f2a3ad7c",
   "pendingChanges": false,
   "files": {
     "ROTEIRO.md": {
@@ -37,27 +37,62 @@
       "content": "/root/.cache/hyperframes/history/e165f940-a71a-4461-b810-fc0e7a7adb96/blobs/9a/9ab80489aea97335ef86ea6d7386e5ffbf57a2abeeaea8da6f84c694c87792ad"
     },
     "assets/scenes.js": {
-      "hash": "7e12eb3d1663c5eebc600d932250e4dabf27f8193cabfd2eda20e92a42b9a559",
-      "content": "/root/.cache/hyperframes/history/e165f940-a71a-4461-b810-fc0e7a7adb96/blobs/7e/7e12eb3d1663c5eebc600d932250e4dabf27f8193cabfd2eda20e92a42b9a559"
+      "hash": "42da93f90f47df2f4cb0a2edb12e6d40104e9dfea202a877ac40a87d119a98f8",
+      "content": "/root/.cache/hyperframes/history/e165f940-a71a-4461-b810-fc0e7a7adb96/blobs/42/42da93f90f47df2f4cb0a2edb12e6d40104e9dfea202a877ac40a87d119a98f8"
     },
     "assets/timing.js": {
       "hash": "714a72f1b6241d22ca869b5108378837945793a15578340b21d48fefdac7acf2",
       "content": "/root/.cache/hyperframes/history/e165f940-a71a-4461-b810-fc0e7a7adb96/blobs/71/714a72f1b6241d22ca869b5108378837945793a15578340b21d48fefdac7acf2"
     },
     "index.html": {
-      "hash": "b0e7cddad2a94b68d59d6d783dd7c3548505d4346122a6dc8b0fc7e36abd68cc",
-      "content": "/root/.cache/hyperframes/history/e165f940-a71a-4461-b810-fc0e7a7adb96/blobs/b0/b0e7cddad2a94b68d59d6d783dd7c3548505d4346122a6dc8b0fc7e36abd68cc"
+      "hash": "5fedcc3045f7bfb2705df2fe3d7e8df94e7931f3d0264fee60764e4cc0ccf18d",
+      "content": "/root/.cache/hyperframes/history/e165f940-a71a-4461-b810-fc0e7a7adb96/blobs/5f/5fedcc3045f7bfb2705df2fe3d7e8df94e7931f3d0264fee60764e4cc0ccf18d"
     },
     "assets/geo.js": {
       "hash": "c488ef515664461261ae1ea2c2a4723806190eb07e12f3773fc781adfa547391",
       "content": "/root/.cache/hyperframes/history/e165f940-a71a-4461-b810-fc0e7a7adb96/blobs/c4/c488ef515664461261ae1ea2c2a4723806190eb07e12f3773fc781adfa547391"
     },
     "assets/mix.wav": {
-      "hash": "6f54f0346ab6285b7f8885ca222c3baf90c258d4acf81d84535026841e4adeb4",
-      "content": "/root/.cache/hyperframes/history/e165f940-a71a-4461-b810-fc0e7a7adb96/blobs/6f/6f54f0346ab6285b7f8885ca222c3baf90c258d4acf81d84535026841e4adeb4"
+      "hash": "dc7f92d477ce58cdef64c370ee2cbaccbe2ca3a29d936eb17c1f29e66b197b3a",
+      "content": "/root/.cache/hyperframes/history/e165f940-a71a-4461-b810-fc0e7a7adb96/blobs/dc/dc7f92d477ce58cdef64c370ee2cbaccbe2ca3a29d936eb17c1f29e66b197b3a"
     }
   },
-  "revisions": {},
+  "revisions": {
+    "bb28224d-8ab5-412e-b037-1b03046ada97": {
+      "actor": {
+        "kind": "outside",
+        "name": "Outside"
+      },
+      "label": "Changed outside the app",
+      "startedAt": 1794567637183,
+      "endedAt": 1794567637219,
+      "files": {
+        "assets/mix.wav": {
+          "before": "/root/.cache/hyperframes/history/e165f940-a71a-4461-b810-fc0e7a7adb96/blobs/6f/6f54f0346ab6285b7f8885ca222c3baf90c258d4acf81d84535026841e4adeb4",
+          "after": "/root/.cache/hyperframes/history/e165f940-a71a-4461-b810-fc0e7a7adb96/blobs/dc/dc7f92d477ce58cdef64c370ee2cbaccbe2ca3a29d936eb17c1f29e66b197b3a"
+        },
+        "assets/scenes.js": {
+          "before": "/root/.cache/hyperframes/history/e165f940-a71a-4461-b810-fc0e7a7adb96/blobs/7e/7e12eb3d1663c5eebc600d932250e4dabf27f8193cabfd2eda20e92a42b9a559",
+          "after": "/root/.cache/hyperframes/history/e165f940-a71a-4461-b810-fc0e7a7adb96/blobs/42/42da93f90f47df2f4cb0a2edb12e6d40104e9dfea202a877ac40a87d119a98f8"
+        }
+      }
+    },
+    "5c5f55ba-8761-4d4f-bf52-f548f2a3ad7c": {
+      "actor": {
+        "kind": "outside",
+        "name": "Outside"
+      },
+      "label": "Changed outside the app",
+      "startedAt": 1794567686145,
+      "endedAt": 1794567686146,
+      "files": {
+        "index.html": {
+          "before": "/root/.cache/hyperframes/history/e165f940-a71a-4461-b810-fc0e7a7adb96/blobs/b0/b0e7cddad2a94b68d59d6d783dd7c3548505d4346122a6dc8b0fc7e36abd68cc",
+          "after": "/root/.cache/hyperframes/history/e165f940-a71a-4461-b810-fc0e7a7adb96/blobs/5f/5fedcc3045f7bfb2705df2fe3d7e8df94e7931f3d0264fee60764e4cc0ccf18d"
+        }
+      }
+    }
+  },
   "checks": {
     "latest": null,
     "revisions": {},
@@ -70,13 +105,15 @@
   },
   "renders": {
     "latest": {
-      "id": "616f51c7-0097-486d-b42e-9e07fbdb0f07",
-      "completedAt": 1794533834282,
-      "output": "/home/user/HYPERFRAMES/proyectos/onde-voce-vai-nascer-cabo-verde/renders/raw.mp4",
+      "id": "19faa3a5-73fa-4588-891d-263d479ab768",
+      "completedAt": 1794568051619,
+      "output": "/home/user/HYPERFRAMES/proyectos/onde-voce-vai-nascer-cabo-verde/renders/raw2k.mp4",
       "status": "completed",
-      "revision": null
+      "revision": "5c5f55ba-8761-4d4f-bf52-f548f2a3ad7c"
     },
-    "retainedRevisions": []
+    "retainedRevisions": [
+      "5c5f55ba-8761-4d4f-bf52-f548f2a3ad7c"
+    ]
   },
   "pendingArtifactCleanup": []
 }

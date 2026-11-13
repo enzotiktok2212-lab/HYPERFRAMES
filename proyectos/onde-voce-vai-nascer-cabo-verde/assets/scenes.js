@@ -16,8 +16,8 @@
   const stamp = (el, t) => { tl.fromTo(el, { scale: 1.5, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.22, ease: "power3.in", immediateRender: true }, t); sfx(t + 0.2, "thud", 0.7); tl.to(el, { opacity: 0, duration: 0.3 }, t + 2.0); };
   const hide = (el, t) => tl.to(el, { opacity: 0, duration: 0.18 }, t);
   const focus = (px, py, s) => ({ scale: s, x: -(px - 540) * s, y: -(py - 960) * s });
-  const camSet = (w, t, f) => tl.set(w, f, t);
-  const cam = (w, t, f, d, snd, ease) => { tl.to(w, Object.assign({ duration: d, ease: ease || "power2.inOut" }, f), t); if (snd) sfx(t, snd, 0.8); };
+  const CHANGES = []; const camSet = (w, t, f) => { CHANGES.push(t); return tl.set(w, f, t); };
+  const cam = (w, t, f, d, snd, ease) => { CHANGES.push(t); tl.to(w, Object.assign({ duration: d, ease: ease || "power2.inOut" }, f), t); if (snd) sfx(t, snd, 0.8); };
   const shake = (el, t, d, amp) => { L.seed(Math.floor(t * 100)); const kf = []; for (let i = 0; i < Math.floor(d / 0.05); i++) kf.push({ xPercent: (L.rnd() - 0.5) * amp, yPercent: (L.rnd() - 0.5) * amp * 0.6, duration: 0.05 }); kf.push({ xPercent: 0, yPercent: 0, duration: 0.05 }); tl.to(el, { keyframes: kf, ease: "none" }, t); };
   const rot = (ch, part, t, from, to, d, ease, extra) => tl.fromTo(q(ch, "." + part), { rotation: from, svgOrigin: PV[part] }, Object.assign({ rotation: to, svgOrigin: PV[part], duration: d, ease: ease || "sine.inOut", immediateRender: false }, extra || {}), t);
   const walk = (ch, t, d, dx, p) => { p = p || 0.36; const r = reps(d, p);
@@ -37,10 +37,13 @@
 
   // ---------- sistema de escenas ----------
   const SETS = [];
-  function scene(id, t0, bgc) { const sc = L.div(stage, "set", `background:${bgc};z-index:${SETS.length + 1}`, "", id); const w = L.div(sc, "world", `background:${bgc}`, "", id + "-w"); w._sc = sc; SETS.push({ sc, w, t0 }); return w; }
+  function scene(id, t0, bgc) { const sc = L.div(stage, "set", `background:${bgc};z-index:${SETS.length + 1}`, "", id); const cut = L.div(sc, "world", `background:${bgc}`, "", id + "-cut"); const w = L.div(cut, "world", `background:${bgc}`, "", id + "-w"); w._sc = cut; SETS.push({ sc, w, cut, t0, id }); return w; }
   function finalizeSets() {
     SETS.forEach((S, k) => { const t1 = k + 1 < SETS.length ? SETS[k + 1].t0 : TOTAL + 1; tl.set(S.sc, { opacity: 1 }, S.t0); tl.set(S.sc, { opacity: 0 }, t1 + 0.4); if (k === 0) tl.set(S.sc, { opacity: 1 }, 0);
-      if (k > 0 && !S.noTrans) { const kind = S.trans || ["fade", "push", "slide", "push"][k % 4];
+      if (k > 0 && !S.noTrans) { const kind = S.trans || ["whip", "push", "slideL", "flashcut"][k % 4];
+        if (kind === "whip") { tl.fromTo(S.sc, { xPercent: 100 }, { xPercent: 0, duration: 0.26, ease: "power3.out", immediateRender: false }, S.t0); sfx(S.t0 - 0.05, "whoosh", 0.8); }
+        if (kind === "slideL") { tl.fromTo(S.sc, { xPercent: -100 }, { xPercent: 0, duration: 0.26, ease: "power3.out", immediateRender: false }, S.t0); sfx(S.t0 - 0.05, "whoosh", 0.8); }
+        if (kind === "flashcut") { tl.fromTo("#flash", { opacity: 0.75 }, { opacity: 0, duration: 0.25, ease: "power2.out", immediateRender: false }, S.t0); tl.fromTo(S.sc, { scale: 1.15 }, { scale: 1, duration: 0.3, ease: "power3.out", immediateRender: false }, S.t0); sfx(S.t0 - 0.03, "zoomin", 0.7); }
         if (kind === "fade") { tl.fromTo(S.sc, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power1.out", immediateRender: false }, S.t0); sfx(S.t0 - 0.05, "whoosh", 0.45); }
         if (kind === "push") { tl.fromTo(S.sc, { scale: 1.25, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: "power2.out", immediateRender: false }, S.t0); sfx(S.t0 - 0.05, "zoomin", 0.55); }
         if (kind === "slide") { tl.fromTo(S.sc, { xPercent: 100 }, { xPercent: 0, duration: 0.32, ease: "power3.out", immediateRender: false }, S.t0); sfx(S.t0 - 0.05, "whoosh", 0.6); }
@@ -48,6 +51,16 @@
       } });
   }
   const startOf = (i) => Math.max(0, st(i) - 0.1);
+  // Garantiza un cambio de plano como máximo cada 1,5 s dentro de cada escena (capa "cut", independiente de la cámara)
+  const FRAMES = [{ scale: 1.12, x: -40, y: 40 }, { scale: 1, x: 0, y: 0 }, { scale: 1.16, x: 50, y: 60 }, { scale: 1.06, x: -30, y: 20 }, { scale: 1.12, x: 20, y: 70 }, { scale: 1, x: 0, y: 0 }];
+  const CUTS = []; function enforceCuts() { let fi = 0, n = 0;
+    SETS.forEach((S, k) => { if (S.id === "A" || S.id === "Y") return; const t1 = k + 1 < SETS.length ? SETS[k + 1].t0 : TOTAL;
+      const ch = [S.t0, ...CHANGES.filter((c) => c > S.t0 + 0.05 && c < t1 - 0.05), t1].sort((a, b) => a - b);
+      let last = S.t0;
+      for (const c of ch.slice(1)) { while (c - last > 1.5) { const t = last + Math.min(1.35, (c - last) / 2 > 0.75 ? 1.35 : (c - last) / 2); const f = FRAMES[fi++ % FRAMES.length]; const fast = n % 3 !== 2;
+          tl.to(S.cut, Object.assign({ duration: fast ? 0.2 : 0.55, ease: fast ? "power4.out" : "power2.inOut" }, f), t); sfx(t - 0.02, fast ? (n % 2 ? "whoosh" : "zoomin") : (f.scale > 1 ? "zoomin" : "zoomout"), fast ? 0.5 : 0.6); n++; last = t; CUTS.push(t); }
+        last = Math.max(last, c); } });
+    return n; }
 
   // ================= A · GLOBO: pin orbitando + globo girando hasta Cabo Verde =================
   const CV = [-23.9, 16.0], SV = [-24.98, 16.85];
@@ -441,10 +454,10 @@
     tl.to({ v: 0 }, { v: 1, duration: TOTAL - t0, ease: "none", onUpdate() { const t = this.time(); G.draw(24 + 220 * t, -10, 380, 0, 0, 0); G.orbit.style.transform = `rotate(${th(t)}deg)`; G.pin.style.transform = `rotate(${flick(tk, t)}deg)`; } }, t0);
     G.draw(24, -10, 380, 0, 0, 0);
     tl.fromTo(G.w, { scale: 1.9 }, { scale: 1, duration: 0.38, ease: "power4.out" }, t0); sfx(t0, "zoomin", 1.1);
-    tl.to(G.w, { scale: 1.08, duration: 1.5, ease: "sine.inOut" }, t0 + 0.4); sfx(t0 + 0.4, "zoomslow", 0.7);
+    tl.to(G.w, { scale: 1.08, duration: 1.0, ease: "sine.inOut" }, t0 + 0.4); sfx(t0 + 0.4, "zoomslow", 0.7); cam(G.w, t0 + 1.4, { scale: 0.94 }, 0.35, "zoomout", "power3.out");
     L.div(G.w, "", "position:absolute;left:80px;right:80px;top:1700px;text-align:center;font-family:Hand;font-size:28px;color:rgba(255,255,255,.7);z-index:12", "Fontes: ONU WPP 2024 · UNESCO · INE Cabo Verde · FIFA"); }
 
-  finalizeSets();
+  finalizeSets(); window.__CUTS = enforceCuts(); window.__ALLCH = [...CHANGES, ...CUTS, ...SETS.map((x) => x.t0)].sort((a, b) => a - b);
 
   // ================= SUBTÍTULOS =================
   const KEY = /\d|Cabo|Verde|Vicente|Santiago|Lena|Atlântico|crioulo|Cesária|Évora|Sodade|saudade|Boston|Lisboa|Brasil|Copa|Fogo|vinho|mala|mar|bidão|escravizados|Grammy|descalça|inverno|nunca/i;
