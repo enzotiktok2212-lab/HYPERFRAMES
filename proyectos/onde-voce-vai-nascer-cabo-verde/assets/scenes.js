@@ -28,8 +28,8 @@
   const breathe = (ch, t, d) => tl.fromTo(q(ch, ".upper"), { scaleY: 1, svgOrigin: "60 214" }, { scaleY: 1.012, svgOrigin: "60 214", duration: 1.1, ease: "sine.inOut", yoyo: true, repeat: reps(d, 1.1) }, t);
   const talk = (ch, t, d) => { for (let k = 0; k * 0.16 < d; k++) { tl.set(qa(ch, ".mouth > g"), { opacity: 0 }, t + k * 0.16); tl.set(q(ch, k % 2 ? ".m-neutral" : ".m-open"), { opacity: 1 }, t + k * 0.16); } };
   const face = (ch, t, m) => { tl.set(qa(ch, ".mouth > g"), { opacity: 0 }, t); tl.set(q(ch, ".m-" + m), { opacity: 1 }, t); };
-  const card = (w, top, big, desc, src, extra) => L.div(w._sc || w, "card", `top:${top}px;${extra || ""}`, `<div class="big">${big}</div><div class="desc">${desc}</div>${src ? `<div class="src">${src}</div>` : ""}`);
-  const age = (w, txt, x, y) => L.div(w._sc || w, "age", `left:${x}px;top:${y}px`, txt);
+  const card = (w, top, big, desc, src, extra) => L.div(w._top || w._sc || w, "card", `top:${top}px;${extra || ""}`, `<div class="big">${big}</div><div class="desc">${desc}</div>${src ? `<div class="src">${src}</div>` : ""}`);
+  const age = (w, txt, x, y) => L.div(w._top || w._sc || w, "age", `left:${x}px;top:${y}px`, txt);
   const label = (w, txt, x, y, css) => L.div(w, "lbl", `left:${x}px;top:${y}px;${css || ""}`, txt);
   const bg = (w, html, z) => L.svg(w, html, 0, 0, 1080, 1920, z || 1);
   const ground = (y, c) => `<rect x="-20" y="${y}" width="1120" height="${1940 - y}" fill="${c}" stroke="${INK}" stroke-width="4"/>`;
@@ -37,7 +37,7 @@
 
   // ---------- sistema de escenas ----------
   const SETS = [];
-  function scene(id, t0, bgc) { const sc = L.div(stage, "set", `background:${bgc};z-index:${SETS.length + 1}`, "", id); const cut = L.div(sc, "world", `background:${bgc}`, "", id + "-cut"); const w = L.div(cut, "world", `background:${bgc}`, "", id + "-w"); w._sc = cut; SETS.push({ sc, w, cut, t0, id }); return w; }
+  function scene(id, t0, bgc) { const sc = L.div(stage, "set", `background:${bgc};z-index:${SETS.length + 1}`, "", id); const cut = L.div(sc, "world", `background:${bgc}`, "", id + "-cut"); const w = L.div(cut, "world", `background:${bgc}`, "", id + "-w"); w._sc = cut; w._top = sc; SETS.push({ sc, w, cut, t0, id }); return w; }
   function finalizeSets() {
     SETS.forEach((S, k) => { const t1 = k + 1 < SETS.length ? SETS[k + 1].t0 : TOTAL + 1; tl.set(S.sc, { opacity: 1 }, S.t0); tl.set(S.sc, { opacity: 0 }, t1 + 0.4); if (k === 0) tl.set(S.sc, { opacity: 1 }, 0);
       if (k > 0 && !S.noTrans) { const kind = S.trans || ["whip", "push", "slideL", "flashcut"][k % 4];
@@ -53,6 +53,32 @@
   const startOf = (i) => Math.max(0, st(i) - 0.1);
   // Garantiza un cambio de plano como máximo cada 1,5 s dentro de cada escena (capa "cut", independiente de la cámara)
   const FRAMES = [{ scale: 1.12, x: -40, y: 40 }, { scale: 1, x: 0, y: 0 }, { scale: 1.16, x: 50, y: 60 }, { scale: 1.06, x: -30, y: 20 }, { scale: 1.12, x: 20, y: 70 }, { scale: 1, x: 0, y: 0 }];
+  function shots() {
+    const zf = stage.getBoundingClientRect().width / 1080; const plan = [];
+    SETS.forEach((S, k) => { if (S.id === "A" || S.id === "Y") return; const t1 = k + 1 < SETS.length ? SETS[k + 1].t0 : TOTAL;
+      const b = [S.t0, ...T.map((x) => x.s - 0.06).filter((x) => x > S.t0 + 0.5 && x < t1 - 0.4), t1];
+      const cuts = []; for (let i = 0; i < b.length - 1; i++) { const d = b[i + 1] - b[i], n = Math.max(1, Math.ceil(d / 1.4)); for (let j = 0; j < n; j++) cuts.push([b[i] + (d * j) / n, b[i] + (d * (j + 1)) / n]); }
+      cuts.forEach((c) => plan.push({ S, a: c[0], b: c[1] })); });
+    // medir sujetos visibles en cada plano (con la capa de corte en identidad)
+    plan.forEach((p) => { tl.seek(Math.min(p.b - 0.05, p.a + 0.35), false); const sr = stage.getBoundingClientRect();
+      p.subs = [...p.S.cut.querySelectorAll(".ch, .prop")].filter((el) => el.checkVisibility({ opacityProperty: true, visibilityProperty: true })).map((el) => { const r = el.getBoundingClientRect(); return { x: (r.left - sr.left) / zf, y: (r.top - sr.top) / zf, w: r.width / zf, h: r.height / zf, ch: el.classList.contains("ch") }; })
+        .filter((r) => r.w > 30 && r.h > 30 && r.w < 900 && r.x + r.w > 0 && r.x < 1080 && r.y + r.h > 0 && r.y < 1920).sort((u, v) => (v.ch - u.ch) || (v.h * v.w - u.h * u.w)); });
+    tl.seek(0, false);
+    const clampF = (px, py, s0) => { const s = Math.max(1, s0); let x = -(px - 540) * s, y = -(py - 960) * s; const mx = 540 * (s - 1), my = 960 * (s - 1); return { scale: s, x: Math.max(-mx, Math.min(mx, x)), y: Math.max(-my, Math.min(my, y)) }; };
+    let n = 0; const TYPES = ["wide", "close", "medium", "pull", "close", "wide", "medium", "pull"];
+    plan.forEach((p, i) => { const ty = TYPES[i % TYPES.length], sub = p.subs[(Math.floor(i / 2)) % Math.max(1, p.subs.length)], d = p.b - p.a;
+      let A, B, snd = null, entry = "cut";
+      const cx = sub ? sub.x + sub.w / 2 : 540, head = sub ? sub.y + Math.min(sub.h * 0.18, 140) : 900, cy = sub ? sub.y + sub.h / 2 : 960;
+      if (ty === "wide" || !sub) { A = clampF(540, 960, 1.0); B = clampF(540, 960, 1.12); snd = ["zoomslow", 0.45]; entry = "push"; }
+      if (ty === "close" && sub) { const s = Math.min(2.4, Math.max(1.6, 520 / Math.max(160, sub.h * (sub.ch ? 0.45 : 1)))); A = clampF(cx, sub.ch ? head + 60 : cy, s); B = clampF(cx, sub.ch ? head + 60 : cy, s * 1.07); snd = ["zoomin", 0.7]; entry = "punch"; }
+      if (ty === "medium" && sub) { A = clampF(cx - 60, cy - 40, 1.4); B = clampF(cx + 60, cy - 40, 1.45); snd = ["whoosh", 0.6]; entry = "cut"; }
+      if (ty === "pull" && sub) { A = clampF(cx, cy, 1.7); B = clampF(cx, cy, 1.05); snd = ["zoomout", 0.65]; entry = "cut"; }
+      const t = p.a;
+      if (entry === "punch") tl.to(p.S.cut, Object.assign({ duration: 0.16, ease: "power4.out" }, A), t); else tl.set(p.S.cut, A, t);
+      tl.to(p.S.cut, Object.assign({ duration: Math.max(0.2, d - (entry === "punch" ? 0.16 : 0)), ease: ty === "pull" ? "power2.out" : "sine.inOut" }, B), t + (entry === "punch" ? 0.16 : 0));
+      if (entry !== "push") tl.fromTo(p.S.cut, { filter: "blur(5px)" }, { filter: "blur(0px)", duration: 0.12, ease: "none", immediateRender: false }, t);
+      if (t > p.S.t0 + 0.2) sfx(t - 0.03, snd[0], snd[1]); n++; });
+    return n; }
   const CUTS = []; function enforceCuts() { let fi = 0, n = 0;
     SETS.forEach((S, k) => { if (S.id === "A" || S.id === "Y") return; const t1 = k + 1 < SETS.length ? SETS[k + 1].t0 : TOTAL;
       const ch = [S.t0, ...CHANGES.filter((c) => c > S.t0 + 0.05 && c < t1 - 0.05), t1].sort((a, b) => a - b);
@@ -169,6 +195,15 @@
     // "Então... de onde veio todo mundo?" — praia vazia, vento
     const q1 = L.div(w._sc, "", "position:absolute;left:0;right:0;top:500px;text-align:center;font-family:Rubik;font-weight:900;font-size:300px;color:rgba(255,255,255,.85);-webkit-text-stroke:10px #2a2420;paint-order:stroke fill;z-index:20", "?");
     appear(q1, st(7), null); sfx(st(6), "wind", 0.8);
+    const wm = L.div(w._sc, "", "position:absolute;inset:0;z-index:16;opacity:0;background:#16263f");
+    { const pj = d3.geoEquirectangular().center([-14, 24]).scale(1500).translate([540, 960]); const pa = d3.geoPath(pj);
+      const ms = d3.select(wm).append("svg").attr("width", 1080).attr("height", 1920).style("position", "absolute");
+      ms.append("path").attr("d", pa(GEO.land110)).attr("fill", "#4a5a6a").attr("stroke", "#0c1420").attr("stroke-width", 4);
+      const c0 = pj([-23.9, 16]); ms.append("circle").attr("cx", c0[0]).attr("cy", c0[1]).attr("r", 22).attr("fill", "#ff3b30").attr("stroke", "#fff").attr("stroke-width", 5);
+      [[-9.1, 38.7], [-16.5, 13.5], [-15.6, 11.9], [-13.7, 9.5]].forEach((o, i) => { const a = pj(o); const pth = ms.append("path").attr("d", `M${a[0]} ${a[1]} Q${(a[0] + c0[0]) / 2} ${(a[1] + c0[1]) / 2 - 120} ${c0[0]} ${c0[1]}`).attr("fill", "none").attr("stroke", i ? "#e0a030" : "#9cc8dc").attr("stroke-width", 10).attr("stroke-linecap", "round").node();
+        const len = pth.getTotalLength(); pth.setAttribute("stroke-dasharray", len); pth.setAttribute("stroke-dashoffset", len); tl.to(pth, { attr: { "stroke-dashoffset": 0 }, duration: 0.6, ease: "power2.out" }, st(7) + 0.1 + i * 0.15); });
+      for (let i = 0; i < 9; i++) { const sh = L.p(wm, { style: ["short", "long", "curly", "bun"][i % 4], skin: "#0c1420", top: "#0c1420", bottom: "#0c1420", hair: "#0c1420", expr: "neutral" }, 120 + i * 105, 1500, 380, 3); tl.fromTo(sh, { opacity: 0, y: 60 }, { opacity: 0.9, y: 0, duration: 0.3, immediateRender: false }, st(7) + 0.2 + i * 0.05); } }
+    tl.set(wm, { opacity: 1 }, st(7) - 0.05); sfx(st(7) - 0.05, "hit", 0.7);
     camSet(w, t0, focus(700, 1000, 1.1)); cam(w, st(6) - 0.05, focus(540, 1250, 1.5), 1.6, "zoomslow", "sine.inOut"); }
 
   // ================= E · Lena =================
@@ -457,7 +492,7 @@
     tl.to(G.w, { scale: 1.08, duration: 1.0, ease: "sine.inOut" }, t0 + 0.4); sfx(t0 + 0.4, "zoomslow", 0.7); cam(G.w, t0 + 1.4, { scale: 0.94 }, 0.35, "zoomout", "power3.out");
     L.div(G.w, "", "position:absolute;left:80px;right:80px;top:1700px;text-align:center;font-family:Hand;font-size:28px;color:rgba(255,255,255,.7);z-index:12", "Fontes: ONU WPP 2024 · UNESCO · INE Cabo Verde · FIFA"); }
 
-  finalizeSets(); window.__CUTS = enforceCuts(); window.__ALLCH = [...CHANGES, ...CUTS, ...SETS.map((x) => x.t0)].sort((a, b) => a - b);
+  finalizeSets(); window.__CUTS = shots(); window.__ALLCH = [...CHANGES, ...CUTS, ...SETS.map((x) => x.t0)].sort((a, b) => a - b);
 
   // ================= SUBTÍTULOS =================
   const KEY = /\d|Cabo|Verde|Vicente|Santiago|Lena|Atlântico|crioulo|Cesária|Évora|Sodade|saudade|Boston|Lisboa|Brasil|Copa|Fogo|vinho|mala|mar|bidão|escravizados|Grammy|descalça|inverno|nunca/i;
@@ -471,6 +506,7 @@
     const ws = qa(el, ".cw"); g.forEach((x, j) => { tl.fromTo(ws[j], { scale: 1 }, { scale: 1.06, duration: 0.08, ease: "power2.out", immediateRender: false }, x.s); tl.to(ws[j], { scale: 1, duration: 0.1 }, Math.min(x.e, e - 0.05)); });
     tl.set(el, { opacity: 0 }, e); });
 
+  SFX.slice().forEach(([t, k]) => { if (k === "ding" && t > 3) { sfx(t - 0.85, "riser", 0.45); sfx(t, "hit", 0.6); } });
   window.__SFX = SFX;
   window.__timelines = window.__timelines || {};
   window.__timelines["main"] = tl;

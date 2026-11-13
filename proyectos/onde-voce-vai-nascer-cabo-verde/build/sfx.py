@@ -83,6 +83,9 @@ for i in range(90): s0 = int(rng.uniform(0, 2.95) * SR); cr[s0:s0 + 40] += rng.u
 S["crackle"] = norm(hp(cr, 1500) + 0.15 * lp(noise(3.0), 300), 0.3)
 d = 1.0; tt = t_(d); S["ring"] = norm((np.sin(2 * np.pi * 880 * tt) + np.sin(2 * np.pi * 1320 * tt)) * (np.sin(2 * np.pi * 20 * tt) > 0) * np.where((tt % 0.5) < 0.35, 1, 0), 0.25)
 
+d = 1.0; tt = t_(d); S["riser"] = norm(sweep_noise(d, 300, 6000, 0.35, (tt / d) ** 2.2) + 0.4 * tone(d, 110, 440) * (tt / d) ** 2, 0.5)
+n = int(1.2 * SR); tt = t_(1.2); S["hit"] = norm(tone(1.2, 70, 38) * np.exp(-tt * 3.2) + 0.5 * lp(noise(1.2), 600) * np.exp(-tt * 9) + 0.25 * bp(noise(1.2), 2000, 6000) * np.exp(-tt * 25), 0.85)
+
 cues = json.load(open(sys.argv[1]))
 voice, sr = sf.read(sys.argv[2], dtype="float64"); assert sr == SR
 L = len(voice) + SR
