@@ -13,8 +13,6 @@ Na cidade de Mumbai.
 
 Um em cada seis bebês do mundo nasce aqui.
 
-Desde 2023, é o país mais populoso do planeta.
-
 Você é o Aarav.
 
 Nasceu numa cidade de mais de vinte milhões de pessoas.
@@ -24,8 +22,6 @@ Seu pai dirige um tuk-tuk.
 Sua mãe cuida da casa…
 
 e do grupo de WhatsApp do prédio inteiro.
-
-Só na Índia, são mais de quinhentos milhões de pessoas no WhatsApp.
 
 Sua primeira palavra? "Mamãe."
 
@@ -63,13 +59,11 @@ Mesmo assim, você arruma um emprego.
 
 E entra nos trens de Mumbai, com sete milhões e meio de pessoas por dia.
 
-No horário de pico, são até dezesseis pessoas por metro quadrado.
-
 Por isso, todo dia, você entra antes do trem parar.
 
 Aos vinte e oito, o casamento.
 
-Aqui, quase nove em cada dez casamentos ainda são arranjados.
+Aqui, a maioria dos casamentos ainda é arranjada.
 
 Seus pais escolheram a noiva.
 
@@ -98,7 +92,7 @@ Na Índia, se vive em média setenta e dois anos.
 Onde você vai nascer da próxima vez?
 
 ## O que mudou em relação ao original
-- **Dados novos:** país mais populoso desde 2023; +500 milhões de pessoas no WhatsApp na Índia; 1 vaga pra cada 80; até 16 pessoas por m² no trem; quase 9 em cada 10 casamentos arranjados.
+- **Versão curta:** sem frases de dados extras (o único acréscimo é «uma vaga pra cada oitenta», que já estava no card do original).
 - **Frases mais curtas e conectores:** «Mesmo assim», «Por isso», «E».
 - **Mesma ordem e mesma informação:** nascimento → família → escola/dabbawala → críquete → prova → trem → casamento → Diwali → aposentadoria → expectativa de vida → callback da marmita.
 
