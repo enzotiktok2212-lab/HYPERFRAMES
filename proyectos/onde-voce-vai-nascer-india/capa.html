@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<title>Capa Índia</title>
+<script src="assets/gsap.min.js"></script>
+<script src="assets/d3.min.js"></script>
+<script src="assets/geo.js"></script>
+<script src="assets/lib.js"></script>
+<script src="assets/dress.js"></script>
+<style>
+  @font-face { font-family: "Rubik"; font-weight: 900; src: url("assets/rubik-latin-900-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Rubik"; font-weight: 700; src: url("assets/rubik-latin-700-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Lilita"; src: url("assets/lilita-one-latin-400-normal.woff2") format("woff2"); }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; background: #f2c48a; font-family: "Rubik", sans-serif; }
+  #c { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: linear-gradient(#f59a5a 0%, #f6c27a 35%, #bfe0ee 70%); }
+  .t { position: absolute; left: 0; right: 0; text-align: center; font-family: "Lilita"; color: #fff; -webkit-text-stroke: 16px #1f1a17; paint-order: stroke fill; text-shadow: 0 12px 0 rgba(0,0,0,.35); line-height: .98; }
+  .y { color: #ffd21f; }
+  .card { position: absolute; background: #f6efe2; border: 6px solid #1f1a17; border-radius: 24px; box-shadow: 0 14px 0 rgba(0,0,0,.3); text-align: center; color: #1f1a17; padding: 14px 30px 18px; }
+  .card b { display: block; font-family: "Rubik"; font-weight: 900; font-size: 92px; color: #c8553d; line-height: 1; }
+  .card span { font-weight: 700; font-size: 34px; }
+  .tag { position: absolute; padding: 12px 26px; border-radius: 40px; background: #c2185b; color: #fff; font-weight: 900; font-size: 40px; border: 5px solid #1f1a17; }
+  .vig { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(40,20,0,.35) 100%); }
+</style>
+</head>
+<body>
+<div id="c"></div>
+<script>
+(function () {
+  const L = window.LIB, K = "#2a2420", c = document.getElementById("c");
+  // sol + cidade + rua
+  L.svg(c, `<circle cx="540" cy="900" r="230" fill="#ffd27a" opacity=".9"/>` + L.indiaCity(1080, 1380, 77) + L.street(1080, 1380, 78, { cow: true }) + L.bgPeople(1080, 1400, 18, 79), 0, 0, 1080, 1920, 1);
+  // Gateway of India ao fundo à esquerda
+  L.svg(c, `<rect x="0" y="80" width="300" height="300" fill="#d9b48a" stroke="${K}" stroke-width="6"/><path d="M95 380 V240 Q150 170 205 240 V380Z" fill="#7a5a3a" stroke="${K}" stroke-width="5"/>` + [20, 110, 200, 280].map((x) => `<rect x="${x - 18}" y="30" width="36" height="60" fill="#e8c9a0" stroke="${K}" stroke-width="4"/><path d="M${x - 22} 34 Q${x} -6 ${x + 22} 34Z" fill="#f3e8d2" stroke="${K}" stroke-width="4"/>`).join(""), -40, 1000, 320, 390, 2);
+  // pipas e pássaros
+  L.kites(c, 4, 5); L.birds(c, 6, 9);
+  // varal de bandeirinhas e guirlanda de cravos
+  L.svg(c, `<path d="M0 60 Q540 160 1080 60" stroke="${K}" stroke-width="3" fill="none"/>` + [...Array(16)].map((_, i) => `<path d="M${i * 70} ${66 + Math.sin(i / 15 * Math.PI) * 92} l36 0 l-18 40z" fill="${["#e8892b", "#2e7d32", "#c2185b", "#f2a71b", "#1f9e9a"][i % 5]}" stroke="${K}" stroke-width="2"/>`).join(""), 0, 1120, 1080, 200, 3);
+  // tuk-tuk à direita
+  const tuk = L.div(c, "", "position:absolute;left:640px;top:1250px;width:440px;height:330px;z-index:6");
+  L.svg(tuk, `<path d="M30 260 L30 110 Q30 48 110 40 L330 40 Q395 48 403 110 L410 260 Z" fill="#f2c21b" stroke="${K}" stroke-width="7"/><path d="M30 110 Q30 48 110 40 L330 40 Q395 48 403 110Z" fill="#1f1a17"/><rect x="30" y="196" width="380" height="64" fill="#2e7d32" stroke="${K}" stroke-width="5"/><circle cx="90" cy="276" r="36" fill="${K}"/><circle cx="365" cy="276" r="36" fill="${K}"/><rect x="330" y="125" width="64" height="64" fill="#bfe0ee" stroke="${K}" stroke-width="5"/>`, 0, 0, 440, 330, 1);
+  // personagens: Aarav (centro), mãe de sári, dabbawala
+  L.p(c, { style: "bun", skin: "#a06a45", saree: true, top: "#c2185b", border: "#f2a71b", bindi: true, arms: "hip", expr: "smile" }, 230, 1560, 640, 7);
+  L.p(c, { style: "short", skin: "#a06a45", kurta: true, top: "#f3e8d2", bottom: "#f6f3ea", trim: "#c8902b", arms: "up", expr: "open" }, 540, 1600, 700, 8);
+  L.p(c, { style: "short", skin: "#7a4a2e", kurta: true, top: "#ffffff", bottom: "#ffffff", topi: true, arms: "up", expr: "smile", holdR: `<g transform="translate(106,10)"><rect x="-28" y="-60" width="56" height="70" rx="8" fill="#c0c6cc" stroke="${K}" stroke-width="4"/><path d="M-28 -36 H28 M-28 -14 H28" stroke="${K}" stroke-width="3"/></g>` }, 880, 1640, 560, 9);
+  // globo pequeno com pin cravado na Índia
+  const g = L.div(c, "", "position:absolute;left:740px;top:640px;width:300px;height:340px;z-index:10");
+  const sv = d3.select(g).append("svg").attr("width", 300).attr("height", 340);
+  const pr = d3.geoOrthographic().scale(130).translate([150, 200]).rotate([-79, -10]).clipAngle(90), pa = d3.geoPath(pr);
+  sv.append("path").attr("d", pa({ type: "Sphere" })).attr("fill", "#1f8cf0").attr("stroke", K).attr("stroke-width", 6);
+  sv.append("path").attr("d", pa(GEO.land110)).attr("fill", "#5fd35a").attr("stroke", "#1e4d1c").attr("stroke-width", 2);
+  sv.append("path").attr("d", pa(GEO.in)).attr("fill", "#ff3b30").attr("stroke", K).attr("stroke-width", 3);
+  const p = pr([79, 22]); sv.append("path").attr("d", `M${p[0] - 8} ${p[1] - 70} L${p[0]} ${p[1]} L${p[0] + 8} ${p[1] - 70}Z`).attr("fill", "#ff3b30").attr("stroke", K).attr("stroke-width", 4);
+  sv.append("circle").attr("cx", p[0]).attr("cy", p[1] - 84).attr("r", 24).attr("fill", "#fff").attr("stroke", K).attr("stroke-width", 6); sv.append("circle").attr("cx", p[0]).attr("cy", p[1] - 84).attr("r", 9).attr("fill", K);
+  // textos-chave
+  L.div(c, "t", "top:250px;font-size:104px;z-index:20", `E SE VOCÊ<br/>NASCESSE NA<br/><span class="y">ÍNDIA?</span>`);
+  L.div(c, "card", "left:60px;top:700px;z-index:20;transform:rotate(-4deg)", `<b>1 em 6</b><span>bebês do mundo<br/>nasce aqui</span>`);
+  L.div(c, "tag", "left:0;right:0;margin:0 auto;width:820px;text-align:center;top:590px;white-space:nowrap;z-index:20;transform:rotate(-2deg)", "UMA VIDA INTEIRA EM MUMBAI");
+  L.div(c, "", "position:absolute;inset:0;z-index:30", `<div class="vig"></div>`);
+})();
+</script>
+</body>
+</html>
