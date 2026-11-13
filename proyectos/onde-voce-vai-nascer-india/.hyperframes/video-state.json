@@ -67,5 +67,16 @@
     "latest": null,
     "revisions": {},
     "unversioned": []
-  }
+  },
+  "renders": {
+    "latest": {
+      "id": "03d3810c-9538-417a-ba2c-2ba06d962a5b",
+      "completedAt": 1794574848070,
+      "output": "/home/user/HYPERFRAMES/proyectos/onde-voce-vai-nascer-india/renders/raw2k.mp4",
+      "status": "completed",
+      "revision": null
+    },
+    "retainedRevisions": []
+  },
+  "pendingArtifactCleanup": []
 }
