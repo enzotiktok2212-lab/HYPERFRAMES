@@ -66,13 +66,17 @@
     // medir sujetos visibles en cada plano (con la capa de corte en identidad)
     plan.forEach((p) => { tl.seek(Math.min(p.b - 0.05, p.a + 0.35), false); const sr = stage.getBoundingClientRect();
       p.subs = [...p.S.cut.querySelectorAll(".ch, .prop")].filter((el) => el.checkVisibility({ opacityProperty: true, visibilityProperty: true })).map((el) => { const r = el.getBoundingClientRect(); return { x: (r.left - sr.left) / zf, y: (r.top - sr.top) / zf, w: r.width / zf, h: r.height / zf, ch: el.classList.contains("ch") }; })
-        .filter((r) => r.w > 30 && r.h > 30 && r.w < 900 && r.x + r.w > 0 && r.x < 1080 && r.y + r.h > 0 && r.y < 1920).sort((u, v) => (v.ch - u.ch) || (v.h * v.w - u.h * u.w)); });
+        .filter((r) => r.w > 30 && r.h > 30 && r.w < 900 && r.x + r.w > 0 && r.x < 1080 && r.y + r.h > 0 && r.y < 1920).sort((u, v) => (v.ch - u.ch) || (v.h * v.w - u.h * u.w));
+      p.labs = [...p.S.cut.querySelectorAll(".lbl, .bubble, .glabel, .stamp")].filter((el) => el.checkVisibility({ opacityProperty: true, visibilityProperty: true })).map((el) => { const r = el.getBoundingClientRect(); return { x: (r.left - sr.left) / zf, y: (r.top - sr.top) / zf, w: r.width / zf, h: r.height / zf }; }).filter((r) => r.w > 10 && r.x < 1080 && r.x + r.w > 0); });
     tl.seek(0, false);
-    const clampF = (px, py, s0) => { const s = Math.max(1, s0); let x = -(px - 540) * s, y = -(py - 960) * s; const mx = 540 * (s - 1), my = 960 * (s - 1); return { scale: s, x: Math.max(-mx, Math.min(mx, x)), y: Math.max(-my, Math.min(my, y)) }; };
+    const clampF = (px, py, s0) => { const s = Math.max(1, Math.min(s0, clampF.smax || 9)); let x = -(px - 540) * s, y = -(py - 960) * s; const mx = 540 * (s - 1), my = 960 * (s - 1); return { scale: s, x: Math.max(-mx, Math.min(mx, x)), y: Math.max(-my, Math.min(my, y)) }; };
     let n = 0; const TYPES = ["wide", "close", "medium", "pull", "close", "wide", "medium", "pull"];
-    plan.forEach((p, i) => { const ty = TYPES[i % TYPES.length], sub = p.subs[(Math.floor(i / 2)) % Math.max(1, p.subs.length)], d = p.b - p.a;
+    plan.forEach((p, i) => { clampF.smax = 9; const ty = TYPES[i % TYPES.length], sub = p.subs[(Math.floor(i / 2)) % Math.max(1, p.subs.length)], d = p.b - p.a;
       let A, B, snd = null, entry = "cut";
-      const cx = sub ? sub.x + sub.w / 2 : 540, head = sub ? sub.y + Math.min(sub.h * 0.18, 140) : 900, cy = sub ? sub.y + sub.h / 2 : 960;
+      let cx = sub ? sub.x + sub.w / 2 : 540, head = sub ? sub.y + Math.min(sub.h * 0.18, 140) : 900, cy = sub ? sub.y + sub.h / 2 : 960, smax = 9;
+      if (sub && p.labs.length) { let x0 = sub.x, y0 = sub.y, x1 = sub.x + sub.w, y1 = sub.y + sub.h * 0.55; p.labs.forEach((r) => { x0 = Math.min(x0, r.x); y0 = Math.min(y0, r.y); x1 = Math.max(x1, r.x + r.w); y1 = Math.max(y1, r.y + r.h); });
+        smax = Math.max(1, Math.min(960 / (x1 - x0), 1500 / (y1 - y0))); cx = (x0 + x1) / 2; cy = (y0 + y1) / 2; head = cy - 60; }
+      clampF.smax = smax;
       if (ty === "wide" || !sub) { A = clampF(540, 960, 1.0); B = clampF(540, 960, 1.12); snd = ["zoomslow", 0.45]; entry = "push"; }
       if (ty === "close" && sub) { const s = Math.min(2.4, Math.max(1.6, 520 / Math.max(160, sub.h * (sub.ch ? 0.45 : 1)))); A = clampF(cx, sub.ch ? head + 60 : cy, s); B = clampF(cx, sub.ch ? head + 60 : cy, s * 1.07); snd = ["zoomin", 0.7]; entry = "punch"; }
       if (ty === "medium" && sub) { A = clampF(cx - 60, cy - 40, 1.4); B = clampF(cx + 60, cy - 40, 1.45); snd = ["whoosh", 0.6]; entry = "cut"; }
@@ -165,11 +169,13 @@
   const crowdP = (i) => { const f = i % 2 === 0; const cols = ["#e8892b", "#c2185b", "#1f9e9a", "#f2a71b", "#2e7d32", "#3f51b5", "#f3e8d2", "#8a1c24"];
     return f ? { style: i % 4 ? "bun" : "long", skin: SK[i % 6], saree: i % 3 !== 1, dress: i % 3 === 1, dupatta: i % 3 === 1 ? cols[(i + 3) % 8] : null, top: cols[i % 8], border: cols[(i + 2) % 8], bindi: true, expr: i % 3 ? "neutral" : "smile" }
       : { style: "short", skin: SK[i % 6], kurta: i % 3 !== 2, top: i % 3 === 2 ? cols[i % 8] : ["#f3e8d2", "#e8892b", "#1f9e9a", "#ffffff"][i % 4], bottom: "#f6f3ea", turban: i % 5 === 1 ? cols[(i + 1) % 8] : null, beard: i % 4 === 1 ? "#2a2420" : null, collar: i % 3 === 2, expr: i % 3 ? "neutral" : "smile" }; };
-  const city = (seed, base) => L.city(1080, base, { seed, minH: 360, varH: 420, cols: ["#e8d4b0", "#d9b48a", "#c9d6dc", "#e8c27a", "#b9c4cc", "#e0a87e"] });
+  const city = (seed, base) => L.indiaCity(1080, base, seed);
+  const life = (w, t0, d, kites) => { L.birds(w, 5, Math.floor(t0 * 10)).forEach((b, i) => tl.fromTo(b, { x: 0, y: 0 }, { x: 260 + i * 50, y: -40 - i * 10, duration: d + 1, ease: "none" }, t0)); if (kites) L.kites(w, 3, Math.floor(t0 * 7)).forEach((k, i) => tl.fromTo(k, { rotation: -10, transformOrigin: "50% 100%" }, { rotation: 10, transformOrigin: "50% 100%", duration: 0.7 + i * 0.1, ease: "sine.inOut", yoyo: true, repeat: reps(d, 0.7) }, t0)); };
 
   // ================= B · BILHETE · Gateway of India =================
   { const t0 = cIn + 0.45; const w = scene("B", t0, "linear-gradient(#f2c48a,#bfe0ee 60%)"); SETS[SETS.length - 1].noTrans = true;
     bg(w, city(4, 1080) + `<rect x="-20" y="1080" width="1120" height="860" fill="#3f8fb5" stroke="${INK}" stroke-width="4"/>` + `<g><rect x="300" y="600" width="480" height="480" fill="#d9b48a" stroke="${INK}" stroke-width="6"/><path d="M450 1080 V860 Q540 760 630 860 V1080Z" fill="#7a5a3a" stroke="${INK}" stroke-width="5"/>` + [330, 470, 610, 750].map((x) => `<rect x="${x - 25}" y="520" width="50" height="90" fill="#e8c9a0" stroke="${INK}" stroke-width="5"/><path d="M${x - 30} 525 Q${x} 470 ${x + 30} 525Z" fill="#f3e8d2" stroke="${INK}" stroke-width="5"/>`).join("") + `<path d="M460 600 Q540 520 620 600Z" fill="#f3e8d2" stroke="${INK}" stroke-width="5"/></g>`);
+    life(w, t0, 4, false);
     const boat = L.svg(w, `<path d="M0 30 L180 30 L150 70 L30 70Z" fill="#c2185b" stroke="${INK}" stroke-width="5"/><path d="M90 30 V-60 L150 20Z" fill="#f3e8d2" stroke="${INK}" stroke-width="4"/>`, -200, 1180, 180, 80, 3); tl.fromTo(boat, { x: 0 }, { x: 1500, duration: 4, ease: "none" }, t0); sfx(t0, "waves", 0.6);
     const tk = L.div(w._top, "card ticket", "top:640px", `<div class="head">BILHETE PRA VIDA</div><div class="place">Índia · Mumbai</div><div style="font-family:Hand;color:#c8553d;font-size:60px;line-height:.9" id="tkwho">menino</div><div class="big" style="font-size:170px" id="tkodds">1 em 6</div><div class="desc">bebês do mundo nasce na Índia</div><div class="src">o país mais populoso do planeta desde 2023 · ONU WPP 2024</div>`);
     tl.fromTo(tk, { y: 900, rotation: 5 }, { y: 0, rotation: -1.5, duration: 0.5, ease: "power3.out" }, t0 + 0.1); sfx(t0 + 0.1, "whoosh", 0.7);
@@ -177,7 +183,8 @@
 
   // ================= C · nasce o Aarav =================
   { const t0 = startOf(4); const w = scene("C", t0, "#f0e2c8");
-    bg(w, `<rect x="380" y="330" width="320" height="300" fill="#bfe0ee" stroke="${INK}" stroke-width="6"/><path d="M540 330 V630 M380 480 H700" stroke="${INK}" stroke-width="5"/><path d="M60 300 Q300 250 540 300 Q780 250 1020 300" stroke="#f2a71b" stroke-width="16" fill="none"/>` + [...Array(12)].map((_, i) => `<circle cx="${100 + i * 80}" cy="${300 - Math.sin(i / 11 * Math.PI) * 40}" r="14" fill="${i % 2 ? "#e8892b" : "#f2a71b"}" stroke="${INK}" stroke-width="3"/>`).join("") + ground(1330, "#c99a6b"));
+    bg(w, L.room({ seed: 3, wall: "#f0e2c8", window: false }) + `<rect x="380" y="330" width="320" height="300" fill="#bfe0ee" stroke="${INK}" stroke-width="6"/><path d="M540 330 V630 M380 480 H700" stroke="${INK}" stroke-width="5"/><path d="M60 300 Q300 250 540 300 Q780 250 1020 300" stroke="#f2a71b" stroke-width="16" fill="none"/>` + [...Array(12)].map((_, i) => `<circle cx="${100 + i * 80}" cy="${300 - Math.sin(i / 11 * Math.PI) * 40}" r="14" fill="${i % 2 ? "#e8892b" : "#f2a71b"}" stroke="${INK}" stroke-width="3"/>`).join(""));
+    { const fan = L.fan(w, 540, -20); tl.fromTo(fan, { scaleX: 1 }, { scaleX: -1, duration: 0.12, ease: "none", yoyo: true, repeat: 40 }, t0); }
     const mom = L.p(w, Object.assign({}, MOM, { arms: "hold", expr: "smile" }), 460, 1330, 640, 5);
     L.svg(w, `<ellipse cx="60" cy="40" rx="56" ry="30" fill="#f3e8d2" stroke="${INK}" stroke-width="4"/><circle cx="30" cy="34" r="22" fill="#a06a45" stroke="${INK}" stroke-width="4"/><path d="M22 34 Q26 37 30 34 M34 34 Q38 37 42 34" stroke="${INK}" stroke-width="2.5" fill="none"/><circle cx="30" cy="22" r="3" fill="#2a2420"/>`, 410, 1185, 120, 80, 7);
     const dad = L.p(w, Object.assign({}, DAD, { arms: "up", expr: "open" }), 740, 1330, 680, 4); tl.fromTo(dad, { y: 0 }, { y: -30, duration: 0.22, yoyo: true, repeat: 5, ease: "sine.inOut" }, t0 + 0.1);
@@ -185,15 +192,17 @@
 
   // ================= D · 20 milhões =================
   { const t0 = startOf(5); const w = scene("D", t0, "linear-gradient(#f2c48a,#bfe0ee 60%)");
-    bg(w, city(12, 1050) + ground(1050, "#c9a77a"));
+    bg(w, city(12, 1050) + L.street(1080, 1050, 12, { cow: true }) + L.bgPeople(1080, 1050 + 20, 14, 12));
+    life(w, t0, 4, true);
     L.seed(9); for (let r = 0; r < 4; r++) for (let i = 0; i < 7; i++) { const ch = L.p(w, crowdP(r * 7 + i), 70 + i * 160 + (r % 2) * 70, 1180 + r * 120, 400 + r * 50, 3 + r); walk(ch, t0 + L.rnd() * 0.2, 3.4, (r % 2 ? -1 : 1) * 120, 0.38 + L.rnd() * 0.08); }
     const c = card(w, 250, "<span id='n20'>0</span> milhões+", "de pessoas na região de Mumbai", "ONU, World Urbanization Prospects"); appear(c, at(5, 0.35), "ding", 0.8);
     const nn = { v: 0 }; tl.to(nn, { v: 20, duration: 0.8, ease: "power2.out", onUpdate() { $("n20").textContent = Math.round(nn.v); } }, at(5, 0.35)); sfx(at(5, 0.35), "count", 0.5); }
 
   // ================= E · tuk-tuk =================
   { const t0 = startOf(6); const w = scene("E", t0, "linear-gradient(#f2c48a,#bfe0ee 60%)");
-    const strip = L.svg(w, L.city(2600, 1100, { seed: 21, minH: 300, varH: 380, cols: ["#e8d4b0", "#d9b48a", "#c9d6dc", "#e8c27a"] }), 0, 0, 2600, 1100, 1); tl.fromTo(strip, { x: 0 }, { x: -900, duration: 2.6, ease: "none" }, t0);
+    const strip = L.svg(w, L.indiaCity(2600, 1100, 21), 0, 0, 2600, 1100, 1); tl.fromTo(strip, { x: 0 }, { x: -900, duration: 2.6, ease: "none" }, t0);
     bg(w, `<rect x="-20" y="1100" width="1120" height="840" fill="#6b6f78" stroke="${INK}" stroke-width="4"/><path d="M0 1330 H1080" stroke="#fff" stroke-width="10" stroke-dasharray="70 50"/>`, 2);
+    life(w, t0, 4, true);
     const tuk = L.div(w, "", "position:absolute;left:250px;top:880px;width:560px;height:420px;z-index:5");
     L.svg(tuk, `<path d="M40 330 L40 140 Q40 60 140 50 L420 50 Q500 60 510 140 L520 330 Z" fill="#f2c21b" stroke="${INK}" stroke-width="7"/><path d="M40 140 Q40 60 140 50 L420 50 Q500 60 510 140Z" fill="#1f1a17"/><rect x="40" y="250" width="480" height="80" fill="#2e7d32" stroke="${INK}" stroke-width="5"/><path d="M150 140 L150 330 M400 140 L400 330" stroke="${INK}" stroke-width="6"/><rect x="420" y="160" width="80" height="80" fill="#bfe0ee" stroke="${INK}" stroke-width="5"/><circle cx="110" cy="350" r="44" fill="${INK}"/><circle cx="460" cy="350" r="44" fill="${INK}"/><circle cx="110" cy="350" r="16" fill="#999"/><circle cx="460" cy="350" r="16" fill="#999"/>`, 0, 0, 560, 420, 1);
     const drv = L.p(tuk, Object.assign({}, DAD, { arms: "fwd", expr: "open", turban: null }), 300, 340, 300, 2); drv.style.clipPath = "inset(0 0 45% 0)";
@@ -202,7 +211,7 @@
 
   // ================= F · mãe: casa =================
   { const t0 = startOf(7); const w = scene("F", t0, "#f0e2c8");
-    bg(w, `<rect x="0" y="0" width="1080" height="1330" fill="#e9d3b0"/><rect x="0" y="1060" width="1080" height="40" fill="#8a5a33" stroke="${INK}" stroke-width="4"/>` + ground(1330, "#a8784a") + `<rect x="620" y="980" width="200" height="80" fill="#555" stroke="${INK}" stroke-width="5"/>`);
+    bg(w, L.room({ seed: 6, wx: 700, calendar: true, calX: 420, rug: false, frame: false }) + `<rect x="0" y="0" width="1080" height="1330" fill="#e9d3b0"/><rect x="0" y="1060" width="1080" height="40" fill="#8a5a33" stroke="${INK}" stroke-width="4"/>` + `<rect x="620" y="980" width="200" height="80" fill="#555" stroke="${INK}" stroke-width="5"/>`);
     const pot = L.svg(w, `<path d="M0 30 Q80 0 160 30 L150 100 Q80 120 10 100Z" fill="#9aa3ab" stroke="${INK}" stroke-width="5"/>`, 640, 890, 160, 120, 4);
     const steam = L.div(w, "", "position:absolute;left:700px;top:800px;font-size:70px;color:#fff;z-index:6;opacity:.8", "～"); tl.fromTo(steam, { y: 0, opacity: 0.8 }, { y: -80, opacity: 0, duration: 0.8, repeat: 2 }, t0);
     const mom = L.p(w, Object.assign({}, MOM, { arms: "fwd" }), 470, 1330, 640, 5); rot(mom, "armR", t0, -20, 20, 0.25, null, { yoyo: true, repeat: 6 });
@@ -211,9 +220,10 @@
   // ================= G · WhatsApp do prédio =================
   { const t0 = startOf(8); const w = scene("G", t0, "linear-gradient(#f2c48a,#bfe0ee 60%)");
     bg(w, `<rect x="140" y="300" width="800" height="1040" fill="#e8c27a" stroke="${INK}" stroke-width="6"/><rect x="280" y="230" width="520" height="80" fill="#3f51b5" stroke="${INK}" stroke-width="5"/><text x="540" y="285" text-anchor="middle" font-family="Rubik" font-weight="900" font-size="40" fill="#fff">SHANTI SOCIETY</text>` + ground(1330, "#c9a77a"));
+    life(w, t0, 4, true);
     L.seed(31); for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) { const x = 220 + c * 240, y = 380 + r * 300; L.svg(w, `<rect x="0" y="0" width="200" height="220" fill="#bfe0ee" stroke="${INK}" stroke-width="5"/>`, x, y, 200, 220, 2);
       const nb = L.p(w, Object.assign(crowdP(r * 3 + c + 1), { arms: "phone" }), x + 100, y + 330, 300, 3); nb.style.clipPath = "inset(0 0 50% 0)"; tl.fromTo(nb, { y: 0 }, { y: -8, duration: 0.3, yoyo: true, repeat: 5 }, t0 + L.rnd() * 0.5); }
-    const ph = L.div(w._sc, "", "position:absolute;left:250px;top:560px;width:580px;height:820px;border-radius:50px;background:#111;border:6px solid #2a2420;z-index:20;padding:22px", `<div style="width:100%;height:100%;border-radius:32px;background:#e5ddd5;overflow:hidden;font-weight:700;font-size:34px"><div style="background:#075e54;color:#fff;padding:22px;font-weight:900;font-size:38px">Shanti Society 🏢 <span style="float:right;background:#25d366;border-radius:20px;padding:0 14px" id="wacnt">21</span></div><div id="wa1" style="margin:20px;background:#fff;border-radius:14px;padding:14px 18px;width:70%">Bom dia 🌞🙏</div><div id="wa2" style="margin:20px 20px 20px auto;background:#dcf8c6;border-radius:14px;padding:14px 18px;width:75%">QUEM estacionou na vaga do bloco B?!</div><div id="wa3" style="margin:20px;background:#fff;border-radius:14px;padding:14px 18px;width:70%">Falta água das 14h às 16h</div><div id="wa4" style="margin:20px 20px 20px auto;background:#dcf8c6;border-radius:14px;padding:14px 18px;width:60%">Compartilhem 🙏</div></div>`);
+    const ph = L.div(w._sc, "", "position:absolute;left:250px;top:560px;width:580px;height:820px;border-radius:50px;background:#111;border:6px solid #2a2420;z-index:20;padding:22px", `<div style="width:100%;height:100%;border-radius:32px;background:#e5ddd5;overflow:hidden;font-weight:700;font-size:44px"><div style="background:#075e54;color:#fff;padding:22px;font-weight:900;font-size:46px">Shanti Society 🏢 <span style="float:right;background:#25d366;border-radius:20px;padding:0 14px" id="wacnt">21</span></div><div id="wa1" style="margin:20px;background:#fff;border-radius:14px;padding:14px 18px;width:70%">Bom dia 🌞🙏</div><div id="wa2" style="margin:20px 20px 20px auto;background:#dcf8c6;border-radius:14px;padding:14px 18px;width:75%">QUEM estacionou na vaga do bloco B?!</div><div id="wa3" style="margin:20px;background:#fff;border-radius:14px;padding:14px 18px;width:70%">Falta água das 14h às 16h</div><div id="wa4" style="margin:20px 20px 20px auto;background:#dcf8c6;border-radius:14px;padding:14px 18px;width:60%">Compartilhem 🙏</div></div>`);
     tl.fromTo(ph, { y: 900 }, { y: 0, duration: 0.35, ease: "power3.out" }, st(8) - 0.05); sfx(st(8) - 0.05, "whoosh", 0.6);
     ["wa1", "wa2", "wa3", "wa4"].forEach((id, i) => { appear($(id), st(8) + 0.25 + i * 0.35, "blip", 0.5); });
     const cn = { v: 21 }; tl.to(cn, { v: 99, duration: 1.6, ease: "power1.in", onUpdate() { $("wacnt").textContent = Math.round(cn.v); } }, st(8) + 0.2);
@@ -221,7 +231,8 @@
 
   // ================= H · primeiras palavras =================
   { const t0 = startOf(9); const w = scene("H", t0, "#f0e2c8");
-    bg(w, `<rect x="0" y="0" width="1080" height="1330" fill="#ecd6b4"/><rect x="600" y="360" width="300" height="300" fill="#bfe0ee" stroke="${INK}" stroke-width="6"/>` + ground(1330, "#a8784a"));
+    bg(w, L.room({ seed: 8, window: false, calendar: true }) + `<rect x="0" y="0" width="1080" height="1330" fill="#ecd6b4"/><rect x="600" y="360" width="300" height="300" fill="#bfe0ee" stroke="${INK}" stroke-width="6"/>`);
+    { const fan = L.fan(w, 540, -20); tl.fromTo(fan, { scaleX: 1 }, { scaleX: -1, duration: 0.12, ease: "none", yoyo: true, repeat: 40 }, t0); }
     const mom = L.p(w, Object.assign({}, MOM, { arms: "fwd" }), 230, 1330, 640, 4);
     const dad = L.p(w, Object.assign({}, DAD, { holdR: `<g transform="translate(98,214) rotate(-30)"><rect x="-8" y="-160" width="22" height="170" rx="6" fill="#d9b48a" stroke="${INK}" stroke-width="4"/></g>` }), 850, 1330, 680, 4);
     const baby = L.p(w, { style: "short", skin: "#a06a45", top: "#f2a71b", bottom: "#f2a71b", expr: "open" }, 540, 1330, 280, 6);
@@ -232,18 +243,19 @@
   // ================= I · escola =================
   { const t0 = startOf(13); const w = scene("I", t0, "linear-gradient(#f2c48a,#bfe0ee 60%)");
     bg(w, `<rect x="150" y="500" width="780" height="830" fill="#e8c27a" stroke="${INK}" stroke-width="6"/><rect x="300" y="420" width="480" height="90" fill="#8a1c24" stroke="${INK}" stroke-width="5"/><text x="540" y="480" text-anchor="middle" font-family="Rubik" font-weight="900" font-size="42" fill="#fff">ST. XAVIER'S</text>` + [0, 1, 2, 3].map((i) => `<rect x="${200 + i * 180}" y="580" width="120" height="140" fill="#bfe0ee" stroke="${INK}" stroke-width="4"/>`).join("") + `<rect x="470" y="1090" width="140" height="240" fill="#3f51b5" stroke="${INK}" stroke-width="5"/>` + ground(1330, "#c9a77a"));
+    life(w, t0, 4, true);
     const ag = age(w, "5 anos", 90, 220); stamp(ag, at(13, 0.05));
     const kid = L.p(w, Object.assign({}, KID, { holdR: `<g transform="translate(98,214)"><rect x="-10" y="0" width="40" height="34" rx="6" fill="#8a1c24" stroke="${INK}" stroke-width="3"/></g>` }), 200, 1340, 420, 6); walk(kid, t0, 1.6, 300, 0.32);
     const mom = L.p(w, Object.assign({}, MOM, { arms: "fwd" }), 120, 1340, 600, 5); rot(mom, "armR", t0 + 0.3, -100, -130, 0.2, null, { yoyo: true, repeat: 5 }); }
 
   // ================= J · dabbawala =================
   { const t0 = startOf(14); const w = scene("J", t0, "#f0e2c8");
-    bg(w, `<rect x="0" y="0" width="1080" height="1330" fill="#ecd6b4"/>` + ground(1330, "#a8784a"));
+    bg(w, L.room({ seed: 10, wx: 720, shelf: false, frame: false, rug: false, calendar: true }) + `<rect x="0" y="0" width="1080" height="1330" fill="#ecd6b4"/>`);
     const clk = L.svg(w, L.clock(110, 110, 100), 430, 330, 220, 220, 3); tl.fromTo(q(clk, ".mh"), { rotation: 0, svgOrigin: "110 110" }, { rotation: 180, svgOrigin: "110 110", duration: 1.2, ease: "power2.inOut" }, t0); sfx(t0 + 0.1, "tick", 0.5); sfx(t0 + 0.5, "tick", 0.5);
     const kid = L.p(w, Object.assign({}, KID, { expr: "open", arms: "fwd" }), 540, 1330, 440, 5); L.svg(w, L.desk(0, 0), 440, 1150, 200, 120, 6);
     // ciclista com marmitas
     const road = L.div(w._sc, "", "position:absolute;inset:0;z-index:12;opacity:0;background:linear-gradient(#f2c48a,#bfe0ee 60%)");
-    L.svg(road, city(41, 1080) + ground(1080, "#6b6f78") + `<path d="M0 1300 H1080" stroke="#fff" stroke-width="8" stroke-dasharray="60 40"/>`, 0, 0, 1080, 1920, 1);
+    L.svg(road, city(41, 1080) + L.street(1080, 1080, 41, { cow: false }) + L.bgPeople(1080, 1080 + 20, 14, 41) + `<path d="M0 1300 H1080" stroke="#fff" stroke-width="8" stroke-dasharray="60 40"/>`, 0, 0, 1080, 1920, 1);
     const bike = L.div(road, "", "position:absolute;left:-560px;top:860px;width:520px;height:520px;z-index:4");
     L.svg(bike, `<circle cx="110" cy="400" r="90" fill="none" stroke="${INK}" stroke-width="12"/><circle cx="400" cy="400" r="90" fill="none" stroke="${INK}" stroke-width="12"/><path d="M110 400 L230 260 L360 260 L400 400 M230 260 L260 400 L360 260 M340 200 L360 260" stroke="#2f6f8f" stroke-width="12" fill="none" stroke-linejoin="round"/>` + [0, 1, 2, 3, 4].map((i) => `<g transform="translate(${300 + (i % 3) * 52},${120 + Math.floor(i / 3) * 70})"><rect x="0" y="0" width="46" height="60" rx="8" fill="#c0c6cc" stroke="${INK}" stroke-width="4"/><path d="M0 20 H46 M0 40 H46" stroke="${INK}" stroke-width="3"/></g>`).join(""), 0, 0, 520, 520, 2);
     const dw = L.p(bike, { style: "short", skin: "#7a4a2e", kurta: true, top: "#ffffff", bottom: "#ffffff", topi: true, arms: "fwd", expr: "neutral" }, 250, 420, 420, 1);
@@ -251,7 +263,7 @@
     const lb = label(road, "dabbawala", 330, 480, "font-size:90px;color:#fff;z-index:6"); appear(lb, at(15, 0.6), "blip");
     // muitos entregadores
     const many = L.div(w._sc, "", "position:absolute;inset:0;z-index:13;opacity:0;background:linear-gradient(#f2c48a,#bfe0ee 60%)");
-    L.svg(many, city(51, 1000) + ground(1000, "#c9a77a"), 0, 0, 1080, 1920, 1);
+    L.svg(many, city(51, 1000) + L.street(1080, 1000, 51, { cow: false }) + L.bgPeople(1080, 1000 + 20, 14, 51), 0, 0, 1080, 1920, 1);
     for (let r = 0; r < 4; r++) for (let i = 0; i < 8; i++) { const d = L.p(many, { style: "short", skin: SK[(r + i) % 6], kurta: true, top: "#ffffff", bottom: "#ffffff", topi: true, arms: "up", holdR: `<g transform="translate(106,10)"><rect x="-26" y="-50" width="52" height="60" rx="6" fill="#c0c6cc" stroke="${INK}" stroke-width="3"/></g>`, expr: "neutral" }, 60 + i * 138 + (r % 2) * 60, 1120 + r * 110, 360 + r * 40, 2 + r);
       tl.fromTo(d, { y: 0 }, { y: -10, duration: 0.3, yoyo: true, repeat: 5, ease: "sine.inOut" }, st(16) + (i % 3) * 0.05); }
     tl.set(many, { opacity: 1 }, st(16) - 0.05); sfx(st(16) - 0.05, "whoosh", 0.6);
@@ -266,7 +278,8 @@
 
   // ================= K · críquete na rua =================
   { const t0 = startOf(18); const w = scene("K", t0, "linear-gradient(#f2c48a,#bfe0ee 60%)");
-    bg(w, city(61, 1050) + ground(1050, "#c9a77a") + `<path d="M0 420 Q540 520 1080 420" stroke="${INK}" stroke-width="3" fill="none"/>` + [...Array(14)].map((_, i) => `<path d="M${i * 80} ${428 + Math.sin(i / 13 * Math.PI) * 90} l40 0 l-20 40z" fill="${["#e8892b", "#2e7d32", "#c2185b", "#f2a71b"][i % 4]}" stroke="${INK}" stroke-width="2"/>`).join("") + `<rect x="840" y="1060" width="14" height="140" fill="#f3e8d2" stroke="${INK}" stroke-width="3"/><rect x="866" y="1060" width="14" height="140" fill="#f3e8d2" stroke="${INK}" stroke-width="3"/><rect x="892" y="1060" width="14" height="140" fill="#f3e8d2" stroke="${INK}" stroke-width="3"/>`);
+    bg(w, city(61, 1050) + L.street(1080, 1050, 61, { cow: true }) + L.bgPeople(1080, 1050 + 20, 14, 61) + `<path d="M0 420 Q540 520 1080 420" stroke="${INK}" stroke-width="3" fill="none"/>` + [...Array(14)].map((_, i) => `<path d="M${i * 80} ${428 + Math.sin(i / 13 * Math.PI) * 90} l40 0 l-20 40z" fill="${["#e8892b", "#2e7d32", "#c2185b", "#f2a71b"][i % 4]}" stroke="${INK}" stroke-width="2"/>`).join("") + `<rect x="840" y="1060" width="14" height="140" fill="#f3e8d2" stroke="${INK}" stroke-width="3"/><rect x="866" y="1060" width="14" height="140" fill="#f3e8d2" stroke="${INK}" stroke-width="3"/><rect x="892" y="1060" width="14" height="140" fill="#f3e8d2" stroke="${INK}" stroke-width="3"/>`);
+    life(w, t0, 4, true);
     const bat = L.p(w, Object.assign({}, KID, { top: "#ffffff", uniformI: false, holdR: `<g transform="translate(98,214) rotate(-20)"><rect x="-8" y="-150" width="24" height="160" rx="6" fill="#d9b48a" stroke="${INK}" stroke-width="4"/></g>`, expr: "smile" }), 780, 1240, 460, 6);
     const bowl = L.p(w, Object.assign({}, KID, { top: "#e8892b", uniformI: false, arms: "up", expr: "open" }), 260, 1240, 440, 6);
     const ball = L.div(w, "", "position:absolute;left:300px;top:960px;width:34px;height:34px;border-radius:50%;background:#c6e23a;border:4px solid #2a2420;z-index:7");
@@ -280,12 +293,12 @@
 
   // ================= L · a grande prova =================
   { const t0 = startOf(22); const w = scene("Lx", t0, "#2a2350");
-    bg(w, `<rect x="0" y="0" width="1080" height="1330" fill="#2f2a52"/>` + ground(1330, "#4a3b6e"));
+    bg(w, L.room({ seed: 12, wall: "#2f2a52", floor: "#4a3b6e", window: false, rug: false, sky: "#1a1640" }) + `<rect x="0" y="0" width="1080" height="1330" fill="#2f2a52"/>`);
     const ag = age(w, "17 anos", 90, 220); stamp(ag, at(22, 0.05));
     const clk = L.svg(w, L.clock(110, 110, 100), 700, 300, 220, 220, 3); tl.fromTo(q(clk, ".mh"), { rotation: 0, svgOrigin: "110 110" }, { rotation: 1440, svgOrigin: "110 110", duration: 2.2, ease: "none" }, t0); for (let k = 0; k < 10; k++) sfx(t0 + k * 0.12, "tick", 0.4);
     const stud = L.p(w, Object.assign({}, KID, { arms: "fwd", expr: "neutral" }), 540, 1300, 560, 5);
     L.svg(w, L.desk(0, 0), 380, 1110, 200, 120, 6); L.svg(w, L.desk(0, 0), 520, 1110, 200, 120, 6);
-    const books = L.svg(w, ["#c2185b", "#3f51b5", "#f2a71b", "#2e7d32", "#e8892b"].map((c, i) => `<rect x="${(i % 2) * 10}" y="${250 - i * 50}" width="200" height="50" rx="6" fill="${c}" stroke="${INK}" stroke-width="5"/><text x="${100 + (i % 2) * 10}" y="${284 - i * 50}" text-anchor="middle" font-family="Rubik" font-weight="900" font-size="22" fill="#fff">${["FÍSICA", "QUÍMICA", "MATEMÁTICA", "TESTES", "IIT"][i]}</text>`).join(""), 300, 810, 220, 300, 8);
+    const books = L.svg(w, ["#c2185b", "#3f51b5", "#f2a71b", "#2e7d32", "#e8892b"].map((c, i) => `<rect x="${(i % 2) * 10}" y="${250 - i * 50}" width="200" height="50" rx="6" fill="${c}" stroke="${INK}" stroke-width="5"/><text x="${100 + (i % 2) * 10}" y="${284 - i * 50}" text-anchor="middle" font-family="Rubik" font-weight="900" font-size="30" fill="#fff">${["FÍSICA", "QUÍMICA", "MATEMÁTICA", "TESTES", "IIT"][i]}</text>`).join(""), 300, 810, 220, 300, 8);
     tl.fromTo(qa(books, "rect"), { y: -300, opacity: 0 }, { y: 0, opacity: 1, duration: 0.18, stagger: 0.06, ease: "bounce.out" }, t0 + 0.1);
     // salão
     const hall = L.div(w._sc, "", "position:absolute;inset:0;z-index:12;opacity:0;background:#e9e2d0");
@@ -307,7 +320,8 @@
 
   // ================= M · não passa / vizinho / mãe =================
   { const t0 = startOf(27); const w = scene("M", t0, "#9aa8b6");
-    bg(w, `<rect x="0" y="0" width="1080" height="1330" fill="#a9b4c0"/>` + ground(1330, "#6b7a88"));
+    bg(w, L.room({ seed: 14, wall: "#a9b4c0", floor: "#6b7a88", window: false }) + `<rect x="0" y="0" width="1080" height="1330" fill="#a9b4c0"/>`);
+    { const fan = L.fan(w, 540, -20); tl.fromTo(fan, { scaleX: 1 }, { scaleX: -1, duration: 0.12, ease: "none", yoyo: true, repeat: 40 }, t0); }
     const stud = L.p(w, Object.assign({}, KID, { expr: "sad" }), 540, 1330, 560, 5); tl.to(q(stud, ".head"), { rotation: 12, svgOrigin: "60 84", duration: 0.3 }, t0 + 0.2);
     const res = L.svg(w._sc, `<rect x="0" y="0" width="420" height="520" rx="12" fill="#fff" stroke="${INK}" stroke-width="6"/><text x="210" y="80" text-anchor="middle" font-family="Rubik" font-weight="900" font-size="48" fill="${INK}">RESULTADO</text><path d="M90 160 L330 420 M330 160 L90 420" stroke="#c8202f" stroke-width="30" stroke-linecap="round"/>`, 330, 260, 420, 520, 20);
     tl.fromTo(res, { y: -900, rotation: -15 }, { y: 0, rotation: -3, duration: 0.3, ease: "power3.in" }, t0 + 0.05); sfx(t0 + 0.3, "buzzer", 0.7); tl.set(res, { opacity: 0 }, st(28) - 0.05);
@@ -320,7 +334,7 @@
     tl.set(nb, { opacity: 1 }, st(28) - 0.05); sfx(st(28) - 0.05, "whoosh", 0.6); confetti(nb, 800, 700, st(28) + 0.25, ["#2e7d32", "#f2a71b", "#c2185b"], 18);
     // mãe todo dia
     const md = L.div(w._sc, "", "position:absolute;inset:0;z-index:13;opacity:0;background:#f0e2c8");
-    L.svg(md, ground(1330, "#a8784a"), 0, 0, 1080, 1920, 1);
+    L.svg(md, L.room({ seed: 31, window: false }), 0, 0, 1080, 1920, 1);
     const mom = L.p(md, Object.assign({}, MOM, { arms: "hip" }), 330, 1330, 640, 3); talk(mom, st(29), 2.4);
     const me2 = L.p(md, Object.assign({}, KID, { expr: "sad" }), 760, 1330, 600, 3);
     const bb = L.div(md, "bubble", "left:120px;top:560px;font-size:46px;z-index:5", "O filho do vizinho está no IIT…"); pop(bb, st(29), "pop");
@@ -329,7 +343,7 @@
 
   // ================= N · emprego / trens =================
   { const t0 = startOf(31); const w = scene("N", t0, "#dfe7ef");
-    bg(w, `<rect x="0" y="0" width="1080" height="1330" fill="#dfe5ea"/><rect x="100" y="380" width="880" height="400" fill="#bfe0ee" stroke="${INK}" stroke-width="6"/>` + ground(1330, "#a9a39a"));
+    bg(w, L.room({ seed: 16, wall: "#dfe5ea", floor: "#a9a39a", window: false, shelf: false, frame: false, rug: false }) + `<rect x="0" y="0" width="1080" height="1330" fill="#dfe5ea"/><rect x="100" y="380" width="880" height="400" fill="#bfe0ee" stroke="${INK}" stroke-width="6"/>`);
     const me = L.p(w, Object.assign({}, ADULT, { holdR: `<g transform="translate(98,214)"><rect x="-26" y="0" width="56" height="40" rx="5" fill="#5a3a24" stroke="${INK}" stroke-width="3"/></g>`, expr: "smile" }), 540, 1330, 680, 5);
     const badge = L.svg(w, `<rect x="0" y="0" width="70" height="90" rx="6" fill="#fff" stroke="${INK}" stroke-width="4"/><rect x="12" y="14" width="46" height="34" fill="#3f51b5"/>`, 560, 940, 70, 90, 6); pop(badge, t0 + 0.4, "blip");
     // trem lotado
@@ -350,26 +364,26 @@
 
   // ================= O · casamento =================
   { const t0 = startOf(36); const w = scene("O", t0, "#f0e2c8");
-    bg(w, `<rect x="0" y="0" width="1080" height="1330" fill="#ecd6b4"/>` + ground(1330, "#a8784a"));
+    bg(w, L.room({ seed: 18, wx: 700, shelf: false, curtain: "#c2185b" }) + `<rect x="0" y="0" width="1080" height="1330" fill="#ecd6b4"/>`);
     const ag = age(w, "28 anos", 90, 220); stamp(ag, at(36, 0.05));
     const groom = L.p(w, { style: "short", skin: "#a06a45", kurta: true, top: "#f3e8d2", bottom: "#f6f3ea", trim: "#c8902b", turban: "#c2185b", expr: "smile" }, 540, 1330, 680, 5);
     const garl = L.svg(w, [...Array(9)].map((_, i) => `<circle cx="${30 + i * 25}" cy="${Math.sin(i / 8 * Math.PI) * 60}" r="13" fill="${i % 2 ? "#f2a71b" : "#e8892b"}" stroke="${INK}" stroke-width="2"/>`).join(""), 440, 900, 260, 90, 7); pop(garl, st(37), "chime");
     // biodatas
     const bio = L.div(w._sc, "", "position:absolute;inset:0;z-index:12;opacity:0;background:#ecd6b4");
-    L.svg(bio, ground(1330, "#a8784a"), 0, 0, 1080, 1920, 1);
-    for (let i = 0; i < 8; i++) { const b = L.svg(bio, `<rect x="0" y="0" width="200" height="250" fill="#fff" stroke="${INK}" stroke-width="4"/><text x="100" y="40" text-anchor="middle" font-family="Rubik" font-weight="900" font-size="24" fill="${INK}">BIODATA</text><circle cx="100" cy="110" r="44" fill="#c08a5e"/><path d="M30 180 h140 M30 210 h110" stroke="#aaa" stroke-width="8"/>`, 80 + (i % 4) * 240, 330 + Math.floor(i / 4) * 290, 200, 250, 3); tl.fromTo(b, { scale: 0, rotation: -10 }, { scale: 1, rotation: (i % 3) - 1, duration: 0.2, ease: "back.out(2)", immediateRender: false }, st(38) + i * 0.1); sfx(st(38) + i * 0.1, "flip", 0.4); tl.set(b, { scale: 0 }, t0); }
+    L.svg(bio, L.room({ seed: 32, window: false }), 0, 0, 1080, 1920, 1);
+    for (let i = 0; i < 8; i++) { const b = L.svg(bio, `<rect x="0" y="0" width="200" height="250" fill="#fff" stroke="${INK}" stroke-width="4"/><text x="100" y="40" text-anchor="middle" font-family="Rubik" font-weight="900" font-size="32" fill="${INK}">BIODATA</text><circle cx="100" cy="110" r="44" fill="#c08a5e"/><path d="M30 180 h140 M30 210 h110" stroke="#aaa" stroke-width="8"/>`, 80 + (i % 4) * 240, 330 + Math.floor(i / 4) * 290, 200, 250, 3); tl.fromTo(b, { scale: 0, rotation: -10 }, { scale: 1, rotation: (i % 3) - 1, duration: 0.2, ease: "back.out(2)", immediateRender: false }, st(38) + i * 0.1); sfx(st(38) + i * 0.1, "flip", 0.4); tl.set(b, { scale: 0 }, t0); }
     tl.set(bio, { opacity: 1 }, st(38) - 0.05); sfx(st(38) - 0.05, "whoosh", 0.6);
     const c = card(w, 1000, "maioria", "dos casamentos na Índia ainda é arranjada", "pesquisas indicam cerca de 9 em cada 10"); appear(c, at(38, 0.4), "ding", 0.8); hide(c, st(39) - 0.05);
     // pais com a foto
     const par = L.div(w._sc, "", "position:absolute;inset:0;z-index:13;opacity:0;background:#f0e2c8");
-    L.svg(par, ground(1330, "#a8784a"), 0, 0, 1080, 1920, 1);
+    L.svg(par, L.room({ seed: 33, window: false }), 0, 0, 1080, 1920, 1);
     L.p(par, Object.assign({}, MOM, { arms: "fwd", expr: "smile" }), 260, 1330, 600, 3); L.p(par, Object.assign({}, DAD, { arms: "fwd", expr: "smile" }), 820, 1330, 640, 3);
     const ph = L.svg(par, `<rect x="0" y="0" width="300" height="380" fill="#c8902b" stroke="${INK}" stroke-width="8"/><rect x="24" y="24" width="252" height="332" fill="#f6dcc0"/>`, 390, 520, 300, 380, 4);
     L.p(par, { style: "long", skin: "#b47a50", saree: true, top: "#c8202f", border: "#f2a71b", bindi: true, expr: "smile" }, 540, 1000, 440, 5).style.clipPath = "inset(0 0 52% 0)";
     tl.set(par, { opacity: 1 }, st(39) - 0.05); sfx(st(39) - 0.05, "whoosh", 0.6); pop(ph, st(39), null);
     // último a saber
     const last = L.div(w._sc, "", "position:absolute;inset:0;z-index:14;opacity:0;background:#f0e2c8");
-    L.svg(last, ground(1330, "#a8784a"), 0, 0, 1080, 1920, 1);
+    L.svg(last, L.room({ seed: 34, window: false }), 0, 0, 1080, 1920, 1);
     L.seed(101); for (let i = 0; i < 7; i++) { const p = L.p(last, Object.assign(crowdP(i), { arms: "up", expr: "open" }), 80 + i * 110, 1250, 420, 3); tl.fromTo(p, { y: 0 }, { y: -20, duration: 0.2, yoyo: true, repeat: 5 }, st(40) + i * 0.03); }
     const me = L.p(last, Object.assign({}, ADULT, { expr: "open" }), 880, 1340, 600, 4);
     const qq = L.div(last, "", "position:absolute;left:840px;top:560px;font-weight:900;font-size:130px;color:#f2a71b;-webkit-text-stroke:8px #2a2420;paint-order:stroke fill;z-index:6", "?!"); pop(qq, at(40, 0.5), "boing");
@@ -394,7 +408,7 @@
 
   // ================= P · Diwali =================
   { const t0 = startOf(44); const w = scene("P", t0, "#1a1440");
-    bg(w, L.city(1080, 1150, { seed: 121, night: true, cols: ["#2c2a6a", "#3a2c6e", "#24306a"] }) + ground(1150, "#2a1f4a"), 1);
+    bg(w, L.indiaCity(1080, 1150, 121, { night: true, noShops: false }) + ground(1150, "#2a1f4a"), 1);
     const fw = []; L.seed(7); for (let i = 0; i < 6; i++) { const x = 140 + (i % 3) * 400 + L.rnd() * 60, y = 280 + Math.floor(i / 3) * 260, col = ["#f2a71b", "#c2185b", "#1f9e9a", "#ffd27a", "#e8892b", "#ffffff"][i];
       const f = L.svg(w, [...Array(14)].map((_, k) => { const a = (k / 14) * Math.PI * 2; return `<path d="M100 100 L${100 + Math.cos(a) * 95} ${100 + Math.sin(a) * 95}" stroke="${col}" stroke-width="7" stroke-linecap="round"/>`; }).join(""), x - 100, y - 100, 200, 200, 2);
       tl.fromTo(f, { scale: 0, opacity: 1 }, { scale: 1.3, opacity: 0, duration: 0.8, ease: "power2.out" }, t0 + i * 0.25); sfx(t0 + i * 0.25, "boom", 0.5); }
@@ -411,11 +425,12 @@
   // ================= Q · aposentadoria =================
   { const t0 = startOf(49); const w = scene("Q", t0, "linear-gradient(#f2b66d,#f6dcb0)");
     bg(w, city(131, 1100) + `<rect x="-20" y="1100" width="1120" height="840" fill="#c9a77a" stroke="${INK}" stroke-width="4"/><path d="M0 1100 V1040 H1080 V1100" fill="none" stroke="${INK}" stroke-width="6"/>` + [...Array(12)].map((_, i) => `<path d="M${i * 95} 1040 V1100" stroke="${INK}" stroke-width="5"/>`).join(""));
+    life(w, t0, 4, true);
     const ag = age(w, "60 anos", 90, 220); stamp(ag, at(49, 0.05));
     const old = L.p(w, { style: "grey", skin: "#8d5a3b", kurta: true, top: "#f3e8d2", bottom: "#f6f3ea", glasses: true, old: true, beard: "#d7d2ca", arms: "fwd", expr: "smile" }, 540, 1330, 640, 5);
     const cup = L.svg(w, `<path d="M0 0 H50 L44 60 H6Z" fill="#fff" stroke="${INK}" stroke-width="4"/><path d="M14 20 h22" stroke="#a0603a" stroke-width="12"/>`, 380, 1180, 60, 70, 6); pop(cup, st(51) - 0.05, "pop");
     const steam = L.div(w, "", "position:absolute;left:390px;top:1100px;font-size:60px;color:#fff;z-index:7", "～"); tl.fromTo(steam, { y: 0, opacity: 0.9 }, { y: -60, opacity: 0, duration: 0.7, repeat: 2 }, st(51));
-    const np = L.svg(w, `<rect x="0" y="0" width="300" height="200" fill="#f6f3ea" stroke="${INK}" stroke-width="5"/><path d="M20 30 h260 M20 60 h200 M20 90 h240 M20 120 h180 M20 150 h220" stroke="#999" stroke-width="8"/><text x="150" y="26" text-anchor="middle" font-family="Rubik" font-weight="900" font-size="22" fill="${INK}">TIMES</text>`, 450, 900, 300, 200, 7); pop(np, at(51, 0.5), "flip");
+    const np = L.svg(w, `<rect x="0" y="0" width="300" height="200" fill="#f6f3ea" stroke="${INK}" stroke-width="5"/><path d="M20 30 h260 M20 60 h200 M20 90 h240 M20 120 h180 M20 150 h220" stroke="#999" stroke-width="8"/><text x="150" y="26" text-anchor="middle" font-family="Rubik" font-weight="900" font-size="30" fill="${INK}">TIMES</text>`, 450, 900, 300, 200, 7); pop(np, at(51, 0.5), "flip");
     // netos
     const nt = L.div(w._sc, "", "position:absolute;inset:0;z-index:12;opacity:0;background:#f0e2c8");
     L.svg(nt, `<rect x="560" y="360" width="400" height="320" fill="#2e5a46" stroke="#6b4a32" stroke-width="14"/><circle cx="760" cy="520" r="110" fill="none" stroke="#fff" stroke-width="6"/><rect x="740" y="440" width="40" height="160" fill="none" stroke="#fff" stroke-width="5"/>` + ground(1330, "#a8784a"), 0, 0, 1080, 1920, 1);
@@ -427,6 +442,7 @@
   // ================= R · 72 anos =================
   { const t0 = startOf(53); const w = scene("R", t0, "linear-gradient(#f2a06d,#f6c9a0)");
     bg(w, `<circle cx="540" cy="900" r="160" fill="#ffd27a" stroke="${INK}" stroke-width="5"/><rect x="-20" y="900" width="1120" height="300" fill="#3f8fb5" stroke="${INK}" stroke-width="4"/>` + ground(1200, "#c9b08a") + [...Array(10)].map((_, i) => `<circle cx="${60 + i * 110}" cy="1150" r="10" fill="#ffd27a" stroke="${INK}" stroke-width="3"/><path d="M${60 + i * 110} 1160 V1200" stroke="${INK}" stroke-width="5"/>`).join(""));
+    life(w, t0, 4, false);
     const o1 = L.p(w, { style: "grey", skin: "#8d5a3b", kurta: true, top: "#f3e8d2", bottom: "#f6f3ea", glasses: true, old: true, beard: "#d7d2ca", cane: true, expr: "smile" }, 400, 1360, 620, 5);
     const o2 = L.p(w, { style: "grey", skin: "#a06a45", saree: true, top: "#1f9e9a", border: "#f2a71b", bindi: true, old: true, expr: "smile" }, 680, 1360, 580, 5);
     walk(o1, t0, 2.6, 80, 0.5); walk(o2, t0, 2.6, 80, 0.5);
@@ -434,7 +450,8 @@
 
   // ================= S · últimas palavras =================
   { const t0 = startOf(54); const w = scene("S", t0, "#2a3a52"); SETS[SETS.length - 1].trans = "dip";
-    bg(w, `<rect x="0" y="0" width="1080" height="1330" fill="#3a4a62"/><rect x="600" y="320" width="360" height="380" fill="#f2b66d" stroke="${INK}" stroke-width="6"/><path d="M780 320 V700 M600 510 H960" stroke="${INK}" stroke-width="5"/>` + ground(1330, "#3a3030") + `<rect x="60" y="1060" width="640" height="90" rx="26" fill="#efe6d4" stroke="${INK}" stroke-width="6"/><rect x="60" y="1150" width="36" height="180" fill="#5a3a24"/><rect x="664" y="1150" width="36" height="180" fill="#5a3a24"/><rect x="120" y="995" width="190" height="80" rx="34" fill="#fff" stroke="${INK}" stroke-width="5"/>`);
+    bg(w, L.room({ seed: 20, wall: "#3a4a62", floor: "#3a3030", window: false, rug: false, curtain: "#3f51b5" }) + `<rect x="0" y="0" width="1080" height="1330" fill="#3a4a62"/><rect x="600" y="320" width="360" height="380" fill="#f2b66d" stroke="${INK}" stroke-width="6"/><path d="M780 320 V700 M600 510 H960" stroke="${INK}" stroke-width="5"/>` + `<rect x="60" y="1060" width="640" height="90" rx="26" fill="#efe6d4" stroke="${INK}" stroke-width="6"/><rect x="60" y="1150" width="36" height="180" fill="#5a3a24"/><rect x="664" y="1150" width="36" height="180" fill="#5a3a24"/><rect x="120" y="995" width="190" height="80" rx="34" fill="#fff" stroke="${INK}" stroke-width="5"/>`);
+    { const fan = L.fan(w, 540, -20); tl.fromTo(fan, { scaleX: 1 }, { scaleX: -1, duration: 0.12, ease: "none", yoyo: true, repeat: 40 }, t0); }
     const lying = L.p(w, { style: "grey", skin: "#8d5a3b", kurta: true, top: "#f3e8d2", bottom: "#f6f3ea", old: true, beard: "#d7d2ca", expr: "closed" }, 380, 1060, 560, 4); lying.style.transform = "rotate(-90deg)"; lying.style.transformOrigin = "50% 100%"; lying.style.left = "475px"; lying.style.top = "475px";
     L.svg(w, `<path d="M0 0 L420 0 L420 100 L0 100Z" fill="#c2185b" stroke="${INK}" stroke-width="6"/>`, 300, 990, 420, 100, 6);
     const tif = L.svg(w, [0, 1, 2].map((i) => `<rect x="0" y="${i * 50}" width="110" height="46" rx="8" fill="#c0c6cc" stroke="${INK}" stroke-width="4"/>`).join(""), 820, 1100, 110, 150, 6);

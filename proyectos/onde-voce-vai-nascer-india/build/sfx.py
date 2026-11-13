@@ -93,13 +93,54 @@ nh = np.r_[np.zeros(int(0.1 * SR)), tone(0.6, 700, 1100) * np.sin(2 * np.pi * 14
 S["horse"] = norm(hz, 0.5)
 d = 1.2; tt = t_(d); S["boom"] = norm(tone(d, 90, 40) * np.exp(-tt * 4) + 0.6 * hp(noise(d), 2000) * np.exp(-tt * 3) * (rng.random(int(d * SR)) > 0.97), 0.6)
 
+# --- variantes: cada tipo de transición/zoom tiene versiones distintas que rotan
+def env_rise(n, p=2.0): return np.linspace(0, 1, n) ** p
+def env_fall(n, p=1.5): return np.linspace(1, 0, n) ** p
+def bell_env(n): return np.sin(np.linspace(0, np.pi, n)) ** 2
+V = {}
+def mk_zin(i):
+    d = [0.42, 0.3, 0.55, 0.25, 0.5, 0.36][i]; n = int(d * SR)
+    if i == 0: return S["zoomin"]
+    if i == 1: return norm(sweep_noise(d, 800, 9000, 0.25, env_rise(n, 3)) + 0.3 * hp(noise(d), 6000) * env_rise(n, 4), 0.55)
+    if i == 2: return norm(tone(d, 180, 1400) * env_rise(n, 2.5) * 0.7 + 0.4 * sweep_noise(d, 400, 3000, 0.4, env_rise(n, 2)), 0.5)
+    if i == 3: x = sweep_noise(d, 1500, 6000, 0.3, env_rise(n, 1.5)); x[-int(0.02 * SR):] += bp(noise(0.02), 2000, 7000) * 3; return norm(x, 0.55)
+    if i == 4: return norm(lp(noise(d), 1200) * env_rise(n, 2.2) * (0.7 + 0.3 * np.sin(2 * np.pi * 30 * t_(d))) + 0.5 * tone(d, 60, 160) * env_rise(n, 2), 0.6)
+    return norm(sweep_noise(d, 300, 2200, 0.6, env_rise(n, 1.8)) + 0.25 * np.sin(2 * np.pi * np.cumsum(np.linspace(500, 2600, n)) / SR) * env_rise(n, 3), 0.5)
+def mk_zout(i):
+    d = [0.45, 0.32, 0.6, 0.28, 0.5][i]; n = int(d * SR)
+    if i == 0: return S["zoomout"]
+    if i == 1: return norm(sweep_noise(d, 7000, 600, 0.3, env_fall(n, 2)), 0.5)
+    if i == 2: return norm(tone(d, 1200, 150) * env_fall(n, 1.4) * 0.6 + 0.4 * lp(noise(d), 900) * env_fall(n), 0.5)
+    if i == 3: x = bp(noise(0.03), 2000, 6000) * 2; return norm(np.r_[x, sweep_noise(d, 3000, 400, 0.4, env_fall(n, 2.5))], 0.5)
+    return norm(lp(noise(d), 600) * env_fall(n, 1.2) * (0.6 + 0.4 * np.sin(2 * np.pi * 18 * t_(d))) + 0.4 * tone(d, 220, 70) * env_fall(n), 0.55)
+def mk_wh(i):
+    d = [0.32, 0.22, 0.4, 0.28, 0.5, 0.18][i]; n = int(d * SR)
+    if i == 0: return S["whoosh"]
+    if i == 1: return norm(sweep_noise(d, 2500, 8000, 0.3, bell_env(n)), 0.5)
+    if i == 2: return norm(sweep_noise(d, 250, 1200, 0.5, bell_env(n)) + 0.3 * tone(d, 300, 180) * bell_env(n), 0.55)
+    if i == 3: return norm(sweep_noise(d, 4000, 900, 0.35, bell_env(n)), 0.5)
+    if i == 4: return norm(bp(noise(d), 500, 3000) * bell_env(n) * (0.6 + 0.4 * np.sin(2 * np.pi * 9 * t_(d))), 0.5)
+    return norm(hp(noise(d), 3000) * np.exp(-t_(d) * 14), 0.45)
+def mk_slow(i):
+    d = [2.2, 1.6, 2.0, 1.4][i]; n = int(d * SR)
+    if i == 0: return S["zoomslow"]
+    if i == 1: return norm(tone(d, 110, 220) * bell_env(n) * 0.6 + 0.3 * tone(d, 165, 330) * bell_env(n), 0.32)
+    if i == 2: return norm(sweep_noise(d, 1500, 4000, 0.4, bell_env(n)) * 0.6, 0.3)
+    return norm(lp(noise(d), 300) * bell_env(n) + 0.4 * tone(d, 55, 80) * bell_env(n), 0.35)
+for k, f, nv in [("zoomin", mk_zin, 6), ("zoomout", mk_zout, 5), ("whoosh", mk_wh, 6), ("zoomslow", mk_slow, 4)]:
+    V[k] = [f(i) for i in range(nv)]
+for k, base in [("pop", S["pop"]), ("blip", S["blip"]), ("thud", S["thud"]), ("hit", S["hit"])]:
+    V[k] = [base, norm(np.interp(np.arange(0, len(base), 1.18), np.arange(len(base)), base), np.abs(base).max()), norm(np.interp(np.arange(0, len(base), 0.85), np.arange(len(base)), base), np.abs(base).max())]
+
 cues = json.load(open(sys.argv[1]))
 voice, sr = sf.read(sys.argv[2], dtype="float64"); assert sr == SR
 L = len(voice) + SR
 fx = np.zeros(L)
 VOL = 0.5
-for t, kind, g in cues:
-    x = S.get(kind)
+USE = {}
+for t, kind, g in sorted(cues, key=lambda c: c[0]):
+    if kind in V: i = USE.get(kind, 0); USE[kind] = i + 1; x = V[kind][(i * 7 + i // len(V[kind])) % len(V[kind])]
+    else: x = S.get(kind)
     if x is None: print("sin sonido:", kind); continue
     s0 = int(t * SR)
     if s0 >= L: continue
