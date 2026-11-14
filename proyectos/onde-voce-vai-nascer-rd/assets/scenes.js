@@ -570,8 +570,10 @@
         .filter((r) => r.w > 10 && r.x < 1080 && r.x + r.w > 0);
     });
     tl.seek(0, false);
+    let MINS = 1;
+    const FIXED = (window.__FIXED = []);
     const F = (px, py, s, smax, extra) => {
-      s = Math.max(1, Math.min(s, smax));
+      s = Math.max(1, MINS, Math.min(s, smax));
       let x = -(px - 540) * s,
         y = -(py - 960) * s;
       const mx = 540 * (s - 1),
@@ -648,70 +650,95 @@
         snd = null,
         inDur = 0,
         ease = "power2.inOut";
-      if (ty === "punch") {
-        A = F(cx, cy, 2.0, smax);
-        B = A;
-        inDur = 0.14;
-        snd = ["zoomin", 0.75];
-      }
-      if (ty === "slowin") {
-        A = F(cx, cy, 1.05, smax);
-        B = F(cx, cy, 1.55, smax);
-        snd = ["zoomslow", 0.55];
-        ease = "sine.inOut";
-      }
-      if (ty === "slowout") {
-        A = F(cx, cy, 1.7, smax);
-        B = F(cx, cy, 1.1, smax);
-        snd = ["zoomslow", 0.55];
-        ease = "sine.inOut";
-      }
-      if (ty === "pullout") {
-        A = F(cx, cy, 2.3, smax);
-        B = F(540, 960, 1.0, smax);
-        snd = ["zoomout", 0.7];
-        ease = "power3.out";
-      }
-      if (ty === "panR") {
-        A = F(cx - 240, cy, 1.55, smax);
-        B = F(cx + 240, cy, 1.55, smax);
-        snd = ["whoosh", 0.5];
-        ease = "sine.inOut";
-      }
-      if (ty === "panL") {
-        A = F(cx + 240, cy, 1.55, smax);
-        B = F(cx - 240, cy, 1.55, smax);
-        snd = ["whoosh", 0.5];
-        ease = "sine.inOut";
-      }
-      if (ty === "crane") {
-        A = F(cx, cy + 420, 1.6, smax);
-        B = F(cx, cy - 140, 1.6, smax);
-        snd = ["zoomslow", 0.5];
-        ease = "power2.inOut";
-      }
-      if (ty === "dutch") {
-        A = F(cx, cy, 1.45, smax, { rotation: -8 });
-        B = F(cx, cy, 1.6, smax, { rotation: 3 });
-        snd = ["swish", 0.55];
-      }
-      if (ty === "persp") {
-        A = F(cx, cy, 1.35, smax, { rotationY: 24 });
-        B = F(cx, cy, 1.4, smax, { rotationY: -6 });
-        snd = ["whoosh", 0.55];
-        ease = "power2.out";
-      }
-      if (ty === "tiltx") {
-        A = F(cx, cy, 1.3, smax, { rotationX: 18 });
-        B = F(cx, cy, 1.4, smax, { rotationX: -4 });
-        snd = ["swish", 0.5];
-        ease = "power2.out";
-      }
-      if (ty === "whip") {
-        A = F(cx, cy, 1.45, smax, { x: F(cx, cy, 1.45, smax).x + 560 });
-        B = F(cx, cy, 1.45, smax);
-        inDur = 0.18;
-        snd = ["whoosh", 0.65];
+      const mk = () => {
+        if (ty === "punch") {
+          A = F(cx, cy, 2.0, smax);
+          B = A;
+          inDur = 0.14;
+          snd = ["zoomin", 0.75];
+        }
+        if (ty === "slowin") {
+          A = F(cx, cy, 1.05, smax);
+          B = F(cx, cy, 1.55, smax);
+          snd = ["zoomslow", 0.55];
+          ease = "sine.inOut";
+        }
+        if (ty === "slowout") {
+          A = F(cx, cy, 1.7, smax);
+          B = F(cx, cy, 1.1, smax);
+          snd = ["zoomslow", 0.55];
+          ease = "sine.inOut";
+        }
+        if (ty === "pullout") {
+          A = F(cx, cy, 2.3, smax);
+          B = F(540, 960, 1.0, smax);
+          snd = ["zoomout", 0.7];
+          ease = "power3.out";
+        }
+        if (ty === "panR") {
+          A = F(cx - 240, cy, 1.55, smax);
+          B = F(cx + 240, cy, 1.55, smax);
+          snd = ["whoosh", 0.5];
+          ease = "sine.inOut";
+        }
+        if (ty === "panL") {
+          A = F(cx + 240, cy, 1.55, smax);
+          B = F(cx - 240, cy, 1.55, smax);
+          snd = ["whoosh", 0.5];
+          ease = "sine.inOut";
+        }
+        if (ty === "crane") {
+          A = F(cx, cy + 420, 1.6, smax);
+          B = F(cx, cy - 140, 1.6, smax);
+          snd = ["zoomslow", 0.5];
+          ease = "power2.inOut";
+        }
+        if (ty === "dutch") {
+          A = F(cx, cy, 1.45, smax, { rotation: -8 });
+          B = F(cx, cy, 1.6, smax, { rotation: 3 });
+          snd = ["swish", 0.55];
+        }
+        if (ty === "persp") {
+          A = F(cx, cy, 1.35, smax, { rotationY: 24 });
+          B = F(cx, cy, 1.4, smax, { rotationY: -6 });
+          snd = ["whoosh", 0.55];
+          ease = "power2.out";
+        }
+        if (ty === "tiltx") {
+          A = F(cx, cy, 1.3, smax, { rotationX: 18 });
+          B = F(cx, cy, 1.4, smax, { rotationX: -4 });
+          snd = ["swish", 0.5];
+          ease = "power2.out";
+        }
+        if (ty === "whip") {
+          A = F(cx, cy, 1.45, smax, { x: F(cx, cy, 1.45, smax).x + 560 });
+          B = F(cx, cy, 1.45, smax);
+          inDur = 0.18;
+          snd = ["whoosh", 0.65];
+        }
+      };
+      mk();
+      // centralizar: se o sujeito termina fora do centro, aproxima mais ou troca de sujeito
+      const offc = (B, x) => Math.abs(540 + (x - 540) * B.scale + B.x - 540);
+      if (sub && !["pullout", "panR", "panL"].includes(ty) && offc(B, cx) > 110) {
+        const need = (x) => 540 / Math.max(1, 540 - Math.abs(x - 540) - 60);
+        let best = null;
+        [sub, ...p.subs].forEach((r) => {
+          const x = r.x + r.w / 2,
+            n = need(x);
+          if (n <= 2.5 && (!best || n < best.n)) best = { r, x, n };
+        });
+        if (best) {
+          cx = best.x;
+          cy = best.r.y + best.r.h * (best.r.ch ? 0.34 : 0.5);
+          MINS = best.n;
+          smax = Math.max(smax, best.n);
+        } else {
+          cx = 540;
+        }
+        mk();
+        MINS = 1;
+        FIXED.push([+(t - 0.05).toFixed(2), +(t + d + 0.05).toFixed(2)]);
       }
       if (inDur) {
         tl.set(
@@ -3686,4 +3713,12 @@
   window.__SFX = SFX;
   window.__timelines = window.__timelines || {};
   window.__timelines["main"] = tl;
+  // render por partes: só os trechos pedidos, em sequência
+  if (window.PARTS) {
+    const w = gsap.timeline({ paused: true });
+    window.PARTS.forEach(([a, b]) =>
+      w.add(tl.tweenFromTo(a, b, { ease: "none", immediateRender: false })),
+    );
+    window.__timelines["main"] = w;
+  }
 })();

@@ -171,26 +171,26 @@ for k in range(int(D / b) + 1):
     for j in range(4): place(buf, hat(g=0.3), t + j * s16)
     ch = [[57, 60, 64], [53, 57, 60], [55, 59, 62], [52, 55, 59]][k % 4]; place(buf, 0.18 * sum(np.sin(2 * np.pi * note(m) * t_(b)) for m in ch) * np.exp(-t_(b) * 2), t)
 S["m_reggaeton"] = norm(fadeio(buf), 0.9)
-# merengue (150 bpm): tambora + güira + acordeão
-D = 2.8; buf = np.zeros(int(D * SR)); b = 60 / 150; s16 = b / 4
+# merengue suave (140 bpm): marimba + tambora leve + güira discreta
+D = 2.8; buf = np.zeros(int(D * SR)); b = 60 / 140; s16 = b / 4
 mel = [76, 79, 81, 79, 76, 74, 72, 74, 76, 79, 83, 81, 79, 76, 74, 72]
+def mar(f, d=0.35): tt = t_(d); return (np.sin(2 * np.pi * f * tt) + 0.2 * np.sin(2 * np.pi * 4 * f * tt) * np.exp(-tt * 40)) * np.exp(-tt * 9) * np.minimum(1, tt / 0.003)
 for k in range(int(D / b) + 1):
-    t = k * b; place(buf, 0.6 * tone(0.12, 180, 120) * env(int(0.12 * SR), 0.001, curve=10), t); place(buf, 0.5 * bp(noise(0.06), 800, 3000) * env(int(0.06 * SR), 0.001, curve=10), t + 2 * s16)
-    for j in range(4): place(buf, 0.35 * bp(noise(0.05), 4000, 9000) * np.linspace(0.3, 1, int(0.05 * SR)), t + j * s16)
-    for j in range(2):
-        m = mel[(k * 2 + j) % 16]; d8 = b / 2; tt = t_(d8)
-        acc = (np.sign(np.sin(2 * np.pi * note(m) * tt)) * 0.5 + np.sign(np.sin(2 * np.pi * note(m) * 1.004 * tt)) * 0.5) * (0.8 + 0.2 * np.sin(2 * np.pi * 7 * tt)) * env(len(tt), 0.01, curve=1.5)
-        place(buf, 0.22 * lp(acc, 3500), t + j * d8)
-S["m_merengue"] = norm(fadeio(buf), 0.85)
-# bachata (128 bpm): guitarra requinto + bongô + güira
-D = 2.8; buf = np.zeros(int(D * SR)); b = 60 / 128; s16 = b / 4
+    t = k * b; place(buf, 0.35 * tone(0.14, 150, 100) * env(int(0.14 * SR), 0.002, curve=9), t)
+    for j in range(4): place(buf, 0.06 * bp(noise(0.04), 3000, 6000) * env(int(0.04 * SR), 0.005, curve=6), t + j * s16)
+    for j in range(2): place(buf, 0.5 * mar(note(mel[(k * 2 + j) % 16])), t + j * b / 2)
+    ch = [[60, 64, 67], [55, 59, 62]][(k // 4) % 2]; place(buf, 0.12 * sum(np.sin(2 * np.pi * note(m) * t_(b)) for m in ch) * np.sin(np.linspace(0, np.pi, int(b * SR))), t)
+S["m_merengue"] = norm(fadeio(lp(buf, 4000)), 0.75)
+# bachata suave (124 bpm): violão dedilhado + bongô macio
+D = 2.8; buf = np.zeros(int(D * SR)); b = 60 / 124; s16 = b / 4
 arp = [64, 67, 71, 76, 74, 71, 67, 71, 62, 66, 69, 74, 72, 69, 66, 69]
 for k in range(int(D / s16 * 0.5) + 1):
-    t = k * 2 * s16; place(buf, 0.5 * ks(note(arp[k % 16]), 0.6, 0.995), t)
+    t = k * 2 * s16; place(buf, 0.5 * ks(note(arp[k % 16]), 0.7, 0.997), t)
 for k in range(int(D / b) + 1):
-    t = k * b; place(buf, 0.45 * tone(0.1, 420 if k % 2 else 330, 300) * env(int(0.1 * SR), 0.001, curve=12), t + s16 * 2)
-    place(buf, 0.25 * bp(noise(0.12), 4000, 9000) * env(int(0.12 * SR), 0.01, curve=4), t); place(buf, 0.6 * kick(0.25, 110, 50), t if k % 2 == 0 else t + 3 * s16)
-S["m_bachata"] = norm(fadeio(buf), 0.85)
+    t = k * b; place(buf, 0.25 * tone(0.1, 380 if k % 2 else 300, 260) * env(int(0.1 * SR), 0.002, curve=12), t + s16 * 2)
+    place(buf, 0.35 * kick(0.25, 100, 50), t if k % 2 == 0 else t + 3 * s16)
+S["m_bachata"] = norm(fadeio(lp(buf, 3500)), 0.75)
+S["m_dembow"] = norm(lp(S["m_dembow"], 5000), 0.8); S["m_reggaeton"] = norm(lp(S["m_reggaeton"], 5000), 0.8)
 # transições: cada tipo com assinatura própria
 S["tr_whip"] = norm(sweep_noise(0.26, 900, 8000, 0.3, np.sin(np.linspace(0, np.pi, int(0.26 * SR))) ** 2) + 0.3 * hp(noise(0.26), 6000) * env(int(0.26 * SR), 0.2, curve=2), 0.6)
 S["tr_slide"] = norm(sweep_noise(0.34, 3500, 500, 0.4, np.sin(np.linspace(0, np.pi, int(0.34 * SR))) ** 1.5), 0.55)
@@ -244,7 +244,7 @@ for t, kind, g in sorted(cues, key=lambda c: c[0]):
     s0 = int(t * SR)
     if s0 >= L: continue
     seg = x[: L - s0] * g * VOL
-    if kind.startswith("m_"): ms[s0:s0 + len(seg)] += seg * 1.9
+    if kind.startswith("m_"): ms[s0:s0 + len(seg)] += seg * 0.6
     else: fx[s0:s0 + len(seg)] += seg
 v = np.r_[voice, np.zeros(L - len(voice))]
 # ducking suave de efectos bajo la voz
@@ -254,7 +254,7 @@ mus = np.zeros(L)
 if os.environ.get("MUSIC"):
     m, msr = sf.read(os.environ["MUSIC"], dtype="float64"); m = m if m.ndim == 1 else m.mean(1); mus[: min(L, len(m))] = m[: L]
 mduck = 1 - 0.6 * np.clip(envv / 0.05, 0, 1)
-mix = v * 1.0 + fx * duck + ms * (1 - 0.45 * np.clip(envv / 0.05, 0, 1)) + mus * 0.11 * mduck
+mix = v * 1.0 + fx * duck + ms * (1 - 0.6 * np.clip(envv / 0.05, 0, 1)) + mus * 0.11 * mduck
 mix = mix / max(1.0, np.abs(mix).max() / 0.97)
 sf.write(sys.argv[3], np.stack([mix, mix], 1)[: len(voice) + int(0.2 * SR)], SR)
 print("cues", len(cues), "len", round(len(mix) / SR, 2))
