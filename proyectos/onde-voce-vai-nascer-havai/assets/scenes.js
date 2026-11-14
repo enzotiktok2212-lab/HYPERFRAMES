@@ -81,6 +81,7 @@
       if (!sub) ty = ["dutch", "persp", "tilt", "whip"][i % 4];
       if (smax < 1.35) { ty = ["dutch", "persp", "whip"][i % 3]; smax = 1.3; }
       const C = p.S.cut; let A, B, snd = null, inDur = 0, ease = "power2.inOut";
+      if (p.S.id === "D") { const A0 = F(540, 960, 1.0, 2, { rotationY: i % 2 ? -12 : 12 }), B0 = F(540, 960, 1.06, 2, { rotationY: 0 }); tl.set(C, A0, t); tl.to(C, Object.assign({ duration: Math.max(0.25, d - 0.02), ease: "power2.out" }, B0), t + 0.01); if (t > p.S.t0 + 0.2) sfx(t - 0.03, "whoosh", 0.5); n++; return; }
       if (ty === "punch") { A = F(cx, cy, 2.1, smax); B = A; inDur = 0.14; snd = ["zoomin", 0.75]; }
       if (ty === "pullout") { A = F(cx, cy, 2.3, smax); B = F(540, 960, 1.0, smax); snd = ["zoomout", 0.7]; ease = "power3.out"; }
       if (ty === "panR") { A = F(cx - 220, cy, 1.55, smax); B = F(cx + 220, cy, 1.55, smax); snd = ["whoosh", 0.55]; ease = "sine.inOut"; }
@@ -214,7 +215,7 @@
 
   // ================= D · o lugar mais isolado =================
   { const t0 = startOf(6); const w = scene("D", t0, "#1b6fb0");
-    const pj = d3.geoEquirectangular().center([-138, 28]).scale(1250).translate([540, 960]); const pa = d3.geoPath(pj);
+    const pj = d3.geoEquirectangular().center([-140, 27]).scale(950).translate([540, 960]); const pa = d3.geoPath(pj);
     const ms = d3.select(w).append("svg").attr("width", 1080).attr("height", 1920).style("position", "absolute");
     [...Array(16)].forEach((_, i) => ms.append("path").attr("d", `M0 ${200 + i * 110} Q540 ${180 + i * 110} 1080 ${200 + i * 110}`).attr("stroke", "#fff").attr("stroke-opacity", 0.08).attr("stroke-width", 3).attr("fill", "none"));
     ms.append("path").attr("d", pa(GEO.land)).attr("fill", "#7ac86a").attr("stroke", INK).attr("stroke-width", 4);
@@ -222,6 +223,8 @@
     const h0 = pj([-157.5, 21]), ca = pj([-122.4, 37.8]);
     const ring = L.svg(w, `<circle cx="80" cy="80" r="70" fill="none" stroke="#ffd21f" stroke-width="8"/>`, h0[0] - 80, h0[1] - 80, 160, 160, 3);
     tl.fromTo(ring, { scale: 0.4, opacity: 1 }, { scale: 2.2, opacity: 0, duration: 0.8, repeat: 3, ease: "power1.out" }, t0 + 0.1); sfx(t0 + 0.1, "blip", 0.4);
+    const lh = L.div(w, "glabel", `left:${h0[0]}px;top:${h0[1] + 90}px;font-size:64px;z-index:4`, "HAVAÍ"); gsap.set(lh, { xPercent: -50 }); pop(lh, t0 + 0.2, null);
+    const lc = L.div(w, "glabel", `left:${ca[0] - 40}px;top:${ca[1] + 60}px;font-size:54px;color:#ffd21f;z-index:4`, "CALIFÓRNIA"); gsap.set(lc, { xPercent: -50 }); tl.set(lc, { opacity: 0 }, t0); appear(lc, st(7) + 0.1, null);
     const ln = ms.append("path").attr("d", `M${h0[0]} ${h0[1]} L${ca[0]} ${ca[1]}`).attr("stroke", "#fff").attr("stroke-width", 9).attr("stroke-dasharray", "4 22").attr("stroke-linecap", "round").node();
     const len = ln.getTotalLength(); tl.fromTo(ln, { attr: { "stroke-dashoffset": len } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.01 }, t0); tl.set(ln, { opacity: 0 }, t0); tl.set(ln, { opacity: 1 }, st(7));
     const plane = L.svg(w, `<path d="M10 40 Q90 26 170 40 Q90 54 10 40Z" fill="#fff" stroke="${INK}" stroke-width="5"/><path d="M80 40 L50 6 L70 6 L110 40 L70 74 L50 74Z" fill="#fff" stroke="${INK}" stroke-width="5"/>`, 0, 0, 180, 80, 5);
