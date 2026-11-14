@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="UTF-8"/><title>Capa Tristão</title>
+<script src="assets/gsap.min.js"></script><script src="assets/d3.min.js"></script><script src="assets/geo.js"></script><script src="assets/lib.js"></script><script src="assets/dress.js"></script>
+<style>
+@font-face{font-family:"Rubik";font-weight:900;src:url("assets/rubik-latin-900-normal.woff2")}
+@font-face{font-family:"Rubik";font-weight:700;src:url("assets/rubik-latin-700-normal.woff2")}
+@font-face{font-family:"Hand";src:url("assets/patrick-hand-latin-400-normal.woff2")}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden;font-family:"Rubik",sans-serif;background:#0d2236}
+#c{position:relative;width:1080px;height:1920px;overflow:hidden;background:linear-gradient(#0b1c2e 0%,#1d3d5a 45%,#2c5a7a 60%,#163450 100%)}
+.kick{position:absolute;z-index:20;left:0;right:0;text-align:center;font-weight:900;letter-spacing:6px;color:#9fd6ff;font-size:40px}
+.big{position:absolute;z-index:20;left:60px;right:60px;text-align:center;font-weight:900;color:#fff;line-height:.95;text-shadow:0 8px 0 rgba(0,0,0,.45)}
+.big .y{color:#ffd21f}
+.chip{position:absolute;z-index:20;padding:14px 28px;border-radius:999px;font-weight:900;font-size:40px;color:#0b1c2e;background:#fff;border:5px solid #0b1c2e}
+</style></head><body><div id="c"></div>
+<script>
+(function(){
+ const L=window.LIB,K="#1a1410",c=document.getElementById("c");
+ L.seed(4); let st=""; for(let i=0;i<80;i++) st+=`<circle cx="${L.rnd()*1080}" cy="${L.rnd()*700}" r="${1+L.rnd()*2.5}" fill="#fff" opacity="${.3+L.rnd()*.6}"/>`;
+ // mar escuro com ondas, anéis de distância e a ilha no centro
+ let sea=`<rect x="0" y="1080" width="1080" height="840" fill="#163450"/>`; for(let k=0;k<40;k++){const x=(k*173)%1080,y=1110+(k%10)*80;sea+=`<path d="M${x} ${y} q30 -16 60 0 q30 16 60 0" stroke="#5f9cc8" stroke-width="5" fill="none" opacity=".5"/>`;}
+ const rings=[260,380,500].map((r,i)=>`<ellipse cx="540" cy="1090" rx="${r*1.6}" ry="${r*.42}" fill="none" stroke="#ffd21f" stroke-width="5" stroke-dasharray="18 16" opacity="${.85-i*.22}"/>`).join("");
+ const isl=`<path d="M300 1100 L470 800 Q540 700 610 800 L780 1100Z" fill="#4f7a3a" stroke="${K}" stroke-width="7"/><path d="M470 800 Q540 720 610 800 L585 830 Q540 800 495 830Z" fill="#7a6a5a" stroke="${K}" stroke-width="4"/><path d="M420 900 q40 -40 80 -20 M600 880 q40 -10 70 20" stroke="#3f6a2e" stroke-width="7" fill="none"/>`+[0,1,2,3,4,5].map(i=>{const x=330+i*65,y=1060-(i%2)*10,rc=["#c8202f","#2f6fbf","#3f8a4a"][i%3];return `<rect x="${x}" y="${y-30}" width="44" height="30" fill="#f3efe6" stroke="${K}" stroke-width="3"/><path d="M${x-4} ${y-30} L${x+22} ${y-48} L${x+48} ${y-30}Z" fill="${rc}" stroke="${K}" stroke-width="3"/>`}).join("");
+ L.svg(c, st+sea+rings+L.cloud(540,700,.62,"#e9eef2")+isl+`<path d="M280 1100 Q540 1130 800 1100" stroke="#fff" stroke-width="10" fill="none" opacity=".6"/>`,0,0,1080,1920,1);
+ // navio solitário ao longe
+ L.svg(c,`<path d="M0 30 L120 30 L106 54 L14 54Z" fill="#c8202f" stroke="${K}" stroke-width="4"/><rect x="40" y="6" width="50" height="26" fill="#fff" stroke="${K}" stroke-width="3"/>`,820,1240,120,60,2);
+ L.birds(c,4,11);
+ // Leo de capa amarela olhando o horizonte
+ L.p(c,{style:"short",skin:"#e8b98e",top:"#2f4f7a",knit:"#e8d4b0",bottom:"#3d4a5c",rain:true,sleeve:"#f2c21b",cap:"#f2c21b",boots:"#f2c21b",arms:"up",expr:"open"},230,1720,560,6);
+ L.svg(c,`<path d="M0 120 Q140 40 300 90 L320 220 L-20 220Z" fill="#2a3a2a" stroke="${K}" stroke-width="5"/>`,80,1580,320,220,5);
+ // textos (layout diferente: kicker em cima, título embaixo, chips à direita)
+ L.div(c,"kick","top:150px","ONDE VOCÊ VAI NASCER?");
+ L.div(c,"big","top:230px;font-size:118px",`A ILHA<br/>MAIS <span class="y">ISOLADA</span><br/>DO MUNDO`);
+ L.div(c,"chip","left:560px;top:1380px;transform:rotate(3deg)","200 pessoas");
+ L.div(c,"chip","left:600px;top:1480px;transform:rotate(-2deg);background:#ffd21f","0 aeroportos");
+ L.div(c,"chip","left:540px;top:1580px;transform:rotate(2deg)","7 sobrenomes");
+ L.div(c,"","position:absolute;z-index:20;left:0;right:0;top:1150px;text-align:center;font-family:Hand;font-size:56px;color:#ffd21f","2.400 km de nada");
+ L.div(c,"","position:absolute;z-index:20;left:0;right:0;top:1770px;text-align:center;font-weight:900;font-size:52px;color:#fff;letter-spacing:4px","TRISTÃO DA CUNHA");
+})();
+</script></body></html>
