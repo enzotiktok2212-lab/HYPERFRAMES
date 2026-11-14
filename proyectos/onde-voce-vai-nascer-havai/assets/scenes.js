@@ -59,33 +59,41 @@
   const FRAMES = [{ scale: 1.12, x: -40, y: 40 }, { scale: 1, x: 0, y: 0 }, { scale: 1.16, x: 50, y: 60 }, { scale: 1.06, x: -30, y: 20 }, { scale: 1.12, x: 20, y: 70 }, { scale: 1, x: 0, y: 0 }];
   function shots() {
     const zf = stage.getBoundingClientRect().width / 1080; const plan = [];
+    // cortes nas frases; frase com mais de 1,5 s ganha um corte no meio
     SETS.forEach((S, k) => { if (S.id === "A" || S.id === "Y") return; const t1 = k + 1 < SETS.length ? SETS[k + 1].t0 : TOTAL;
-      const b = [S.t0, ...T.map((x) => x.s - 0.06).filter((x) => x > S.t0 + 0.5 && x < t1 - 0.4), t1];
-      const cuts = []; for (let i = 0; i < b.length - 1; i++) { const d = b[i + 1] - b[i], n = Math.max(1, Math.ceil(d / 1.15)); for (let j = 0; j < n; j++) cuts.push([b[i] + (d * j) / n, b[i] + (d * (j + 1)) / n]); }
-      cuts.forEach((c) => plan.push({ S, a: c[0], b: c[1] })); });
-    // medir sujetos visibles en cada plano (con la capa de corte en identidad)
+      const b = [S.t0, ...T.map((x) => x.s - 0.06).filter((x) => x > S.t0 + 0.45 && x < t1 - 0.45), t1];
+      for (let i = 0; i < b.length - 1; i++) { const d = b[i + 1] - b[i], n = Math.max(1, Math.ceil(d / 1.5)); for (let j = 0; j < n; j++) plan.push({ S, a: b[i] + (d * j) / n, b: b[i] + (d * (j + 1)) / n }); } });
     plan.forEach((p) => { tl.seek(Math.min(p.b - 0.05, p.a + 0.35), false); const sr = stage.getBoundingClientRect();
-      p.subs = [...p.S.cut.querySelectorAll(".ch, .prop")].filter((el) => el.checkVisibility({ opacityProperty: true, visibilityProperty: true })).map((el) => { const r = el.getBoundingClientRect(); return { x: (r.left - sr.left) / zf, y: (r.top - sr.top) / zf, w: r.width / zf, h: r.height / zf, ch: el.classList.contains("ch") }; })
+      const vis = (el) => el.checkVisibility({ opacityProperty: true, visibilityProperty: true });
+      const box = (el) => { const r = el.getBoundingClientRect(); return { x: (r.left - sr.left) / zf, y: (r.top - sr.top) / zf, w: r.width / zf, h: r.height / zf }; };
+      p.subs = [...p.S.cut.querySelectorAll(".ch, .prop")].filter(vis).map((el) => Object.assign(box(el), { ch: el.classList.contains("ch") }))
         .filter((r) => r.w > 30 && r.h > 30 && r.w < 900 && r.x + r.w > 0 && r.x < 1080 && r.y + r.h > 0 && r.y < 1920).sort((u, v) => (v.ch - u.ch) || (v.h * v.w - u.h * u.w));
-      p.labs = [...p.S.cut.querySelectorAll(".lbl, .bubble, .glabel, .stamp")].filter((el) => el.checkVisibility({ opacityProperty: true, visibilityProperty: true })).map((el) => { const r = el.getBoundingClientRect(); return { x: (r.left - sr.left) / zf, y: (r.top - sr.top) / zf, w: r.width / zf, h: r.height / zf }; }).filter((r) => r.w > 10 && r.x < 1080 && r.x + r.w > 0); });
+      p.labs = [...p.S.cut.querySelectorAll(".lbl, .bubble, .glabel, .stamp")].filter(vis).map(box).filter((r) => r.w > 10 && r.x < 1080 && r.x + r.w > 0); });
     tl.seek(0, false);
-    const clampF = (px, py, s0) => { const s = Math.max(1, Math.min(s0, clampF.smax || 9)); let x = -(px - 540) * s, y = -(py - 960) * s; const mx = 540 * (s - 1), my = 960 * (s - 1); return { scale: s, x: Math.max(-mx, Math.min(mx, x)), y: Math.max(-my, Math.min(my, y)) }; };
-    let n = 0; const TYPES = ["wide", "close", "medium", "pull", "close", "wide", "medium", "pull"];
-    plan.forEach((p, i) => { clampF.smax = 9; const ty = TYPES[i % TYPES.length], sub = p.subs[(Math.floor(i / 2)) % Math.max(1, p.subs.length)], d = p.b - p.a;
-      let A, B, snd = null, entry = "cut";
-      let cx = sub ? sub.x + sub.w / 2 : 540, head = sub ? sub.y + Math.min(sub.h * 0.18, 140) : 900, cy = sub ? sub.y + sub.h / 2 : 960, smax = 9;
-      if (sub && p.labs.length) { let x0 = sub.x, y0 = sub.y, x1 = sub.x + sub.w, y1 = sub.y + sub.h * 0.55; p.labs.forEach((r) => { x0 = Math.min(x0, r.x); y0 = Math.min(y0, r.y); x1 = Math.max(x1, r.x + r.w); y1 = Math.max(y1, r.y + r.h); });
-        smax = Math.max(1, Math.min(960 / (x1 - x0), 1500 / (y1 - y0))); cx = (x0 + x1) / 2; cy = (y0 + y1) / 2; head = cy - 60; }
-      clampF.smax = smax;
-      if (ty === "wide" || !sub) { A = clampF(540, 960, 1.0); B = clampF(540, 960, 1.12); snd = ["zoomslow", 0.45]; entry = "push"; }
-      if (ty === "close" && sub) { const s = Math.min(2.4, Math.max(1.6, 520 / Math.max(160, sub.h * (sub.ch ? 0.45 : 1)))); A = clampF(cx, sub.ch ? head + 60 : cy, s); B = clampF(cx, sub.ch ? head + 60 : cy, s * 1.07); snd = ["zoomin", 0.7]; entry = "punch"; }
-      if (ty === "medium" && sub) { A = clampF(cx - 60, cy - 40, 1.4); B = clampF(cx + 60, cy - 40, 1.45); snd = ["whoosh", 0.6]; entry = "cut"; }
-      if (ty === "pull" && sub) { A = clampF(cx, cy, 1.7); B = clampF(cx, cy, 1.05); snd = ["zoomout", 0.65]; entry = "cut"; }
-      const t = p.a;
-      if (entry === "punch") tl.to(p.S.cut, Object.assign({ duration: 0.16, ease: "power4.out" }, A), t); else tl.set(p.S.cut, A, t);
-      tl.to(p.S.cut, Object.assign({ duration: Math.max(0.2, d - (entry === "punch" ? 0.16 : 0)), ease: ty === "pull" ? "power2.out" : "sine.inOut" }, B), t + (entry === "punch" ? 0.16 : 0));
-      if (entry !== "push") tl.fromTo(p.S.cut, { filter: "blur(5px)" }, { filter: "blur(0px)", duration: 0.12, ease: "none", immediateRender: false }, t);
-      if (t > p.S.t0 + 0.2) sfx(t - 0.03, snd[0], snd[1]); n++; });
+    const F = (px, py, s, smax, extra) => { s = Math.max(1, Math.min(s, smax)); let x = -(px - 540) * s, y = -(py - 960) * s; const mx = 540 * (s - 1), my = 960 * (s - 1); return Object.assign({ scale: s, x: Math.max(-mx, Math.min(mx, x)), y: Math.max(-my, Math.min(my, y)), rotation: 0, rotationY: 0, transformPerspective: 1400 }, extra || {}); };
+    const TYPES = ["punch", "panR", "pullout", "dutch", "tilt", "persp", "punch", "whip", "pullout", "panL", "wide", "dutch", "punch", "tilt", "persp", "whip"];
+    let n = 0, last = "";
+    plan.forEach((p, i) => { let ty = TYPES[i % TYPES.length]; if (ty === last) ty = TYPES[(i + 3) % TYPES.length]; last = ty;
+      const sub = p.subs[Math.floor(i / 2) % Math.max(1, p.subs.length)], d = p.b - p.a, t = p.a;
+      let cx = sub ? sub.x + sub.w / 2 : 540, cy = sub ? sub.y + sub.h * (sub.ch ? 0.32 : 0.5) : 960, smax = 2.4;
+      if (sub && p.labs.length) { let x0 = sub.x, y0 = sub.y, x1 = sub.x + sub.w, y1 = sub.y + sub.h * 0.6; p.labs.forEach((r) => { x0 = Math.min(x0, r.x); y0 = Math.min(y0, r.y); x1 = Math.max(x1, r.x + r.w); y1 = Math.max(y1, r.y + r.h); });
+        smax = Math.max(1.15, Math.min(1000 / (x1 - x0), 1600 / (y1 - y0))); cx = (x0 + x1) / 2; cy = (y0 + y1) / 2; }
+      if (!sub) ty = ["dutch", "persp", "tilt", "whip"][i % 4];
+      if (smax < 1.35) { ty = ["dutch", "persp", "whip"][i % 3]; smax = 1.3; }
+      const C = p.S.cut; let A, B, snd = null, inDur = 0, ease = "power2.inOut";
+      if (ty === "punch") { A = F(cx, cy, 2.1, smax); B = A; inDur = 0.14; snd = ["zoomin", 0.75]; }
+      if (ty === "pullout") { A = F(cx, cy, 2.3, smax); B = F(540, 960, 1.0, smax); snd = ["zoomout", 0.7]; ease = "power3.out"; }
+      if (ty === "panR") { A = F(cx - 220, cy, 1.55, smax); B = F(cx + 220, cy, 1.55, smax); snd = ["whoosh", 0.55]; ease = "sine.inOut"; }
+      if (ty === "panL") { A = F(cx + 220, cy, 1.55, smax); B = F(cx - 220, cy, 1.55, smax); snd = ["whoosh", 0.55]; ease = "sine.inOut"; }
+      if (ty === "tilt") { A = F(cx, cy + 380, 1.6, smax); B = F(cx, cy - 120, 1.6, smax); snd = ["whoosh", 0.55]; ease = "power2.inOut"; }
+      if (ty === "dutch") { A = F(cx, cy, 1.45, smax, { rotation: -7 }); B = F(cx, cy, 1.55, smax, { rotation: 3 }); snd = ["swish", 0.55]; }
+      if (ty === "persp") { A = F(cx, cy, 1.35, smax, { rotationY: 22 }); B = F(cx, cy, 1.35, smax, { rotationY: -6 }); snd = ["whoosh", 0.55]; ease = "power2.out"; }
+      if (ty === "whip") { A = F(cx, cy, 1.4, smax, { x: F(cx, cy, 1.4, smax).x + 520 }); B = F(cx, cy, 1.4, smax); inDur = 0.18; snd = ["whoosh", 0.65]; }
+      if (ty === "wide") { A = F(540, 960, 1.0, 1); B = A; snd = null; }
+      if (inDur) { tl.set(C, Object.assign({}, B, { scale: ty === "punch" ? 1 : B.scale, x: ty === "punch" ? 0 : A.x, y: ty === "punch" ? 0 : B.y }), t); tl.to(C, Object.assign({ duration: inDur, ease: "power4.out" }, B), t); }
+      else { tl.set(C, A, t); if (B !== A) tl.to(C, Object.assign({ duration: Math.max(0.25, d - 0.02), ease }, B), t + 0.01); }
+      if (ty !== "wide") tl.fromTo(C, { filter: "blur(6px)" }, { filter: "blur(0px)", duration: 0.12, ease: "none", immediateRender: false }, t);
+      if (snd && t > p.S.t0 + 0.2) sfx(t - 0.03, snd[0], snd[1]); n++; });
     return n; }
   const CUTS = []; function enforceCuts() { let fi = 0, n = 0;
     SETS.forEach((S, k) => { if (S.id === "A" || S.id === "Y") return; const t1 = k + 1 < SETS.length ? SETS[k + 1].t0 : TOTAL;
