@@ -81,7 +81,6 @@
       if (!sub) ty = ["dutch", "persp", "tilt", "whip"][i % 4];
       if (smax < 1.35) { ty = ["dutch", "persp", "whip"][i % 3]; smax = 1.3; }
       const C = p.S.cut; let A, B, snd = null, inDur = 0, ease = "power2.inOut";
-      if (p.S.id === "F") { const A0 = F(540, 960, 1.0, 2, { rotationY: i % 2 ? -12 : 12 }), B0 = F(540, 960, 1.06, 2, { rotationY: 0 }); tl.set(C, A0, t); tl.to(C, Object.assign({ duration: Math.max(0.25, d - 0.02), ease: "power2.out" }, B0), t + 0.01); if (t > p.S.t0 + 0.2) sfx(t - 0.03, "whoosh", 0.5); n++; return; }
       if (ty === "punch") { A = F(cx, cy, 2.1, smax); B = A; inDur = 0.14; snd = ["zoomin", 0.75]; }
       if (ty === "pullout") { A = F(cx, cy, 2.3, smax); B = F(540, 960, 1.0, smax); snd = ["zoomout", 0.7]; ease = "power3.out"; }
       if (ty === "panR") { A = F(cx - 220, cy, 1.55, smax); B = F(cx + 220, cy, 1.55, smax); snd = ["whoosh", 0.55]; ease = "sine.inOut"; }
@@ -124,7 +123,7 @@
     const ring = svg.append("circle").attr("fill", "none").attr("stroke", "#ffd21f").attr("stroke-width", 7);
     const dot = svg.append("circle").attr("r", 14).attr("fill", "#ffd21f").attr("stroke", "#1f1a17").attr("stroke-width", 5);
     const proj = d3.geoOrthographic().clipAngle(90), path = d3.geoPath(proj), G10 = d3.geoGraticule10();
-    const draw = (lam, phi, R, trA, dotA, ringA) => { proj.scale(R).translate([540, 1040]).rotate([lam, phi]); halo.attr("cx", 540).attr("cy", 1040).attr("r", R + 20);
+    const draw = (lam, phi, R, trA, dotA, ringA, cy) => { cy = cy || 1040; proj.scale(R).translate([540, cy]).rotate([lam, phi]); halo.attr("cx", 540).attr("cy", cy).attr("r", R + 20);
       const sp = path({ type: "Sphere" }); ocean.attr("d", sp); shade.attr("d", sp); grat.attr("d", path(G10)); land.attr("d", path(R > 900 ? GEO.land : GEO.land110));
       trP.attr("d", path(GEO.tr)).attr("opacity", trA); const p = proj(EDI); dot.attr("cx", p[0]).attr("cy", p[1]).attr("opacity", dotA);
       const pt = proj(TR); ring.attr("cx", pt[0]).attr("cy", pt[1]).attr("r", 46).attr("opacity", ringA || 0); return proj; };
@@ -149,8 +148,8 @@
     const k = k3(t); let lam = 12.3 - 720 * (1 - k), phi = 30 + (63.8 - 30) * k, R = 380;
     const z1 = ease(cl01((t - tZ1) / 0.8)), z2 = ease(cl01((t - tZ2) / 1.0));
     phi = phi + (37.1 - phi) * z1; R = R + (5200 - R) * z1;
-    lam = lam + (12.31 - lam) * z2; phi = phi + (37.067 - phi) * z2; R = R + (150000 - R) * z2;
-    const proj = A.draw(lam, phi, R, cl01((t - tStick) / 0.15), cl01((t - tZ2 - 0.55) / 0.2), cl01((t - tStick) / 0.1) * (1 - z2));
+    lam = lam + (12.3 - lam) * z2; phi = phi + (37.11 - phi) * z2; R = R + (230000 - R) * z2;
+    const proj = A.draw(lam, phi, R, cl01((t - tStick) / 0.15), cl01((t - tZ2 - 0.55) / 0.2), cl01((t - tStick) / 0.1) * (1 - z2), 1040 - 80 * z2);
     const p = proj(TR), pe = proj(EDI);
     const f = t < tStick ? flick(ticksA, t) * 0.45 : 0, b = t < tStick ? -Math.abs(flick(ticksA, t)) * 0.25 : 0;
     A.pin.style.transform = t < tZ1 ? `translateY(${b}px) rotate(${f}deg)` : `translate(${p[0] - 540}px,${p[1] - 869}px)`;
@@ -248,6 +247,12 @@
     sfx(t0 + 0.2, "riser", 0.3);
     [[sh, "Santa Helena"], [ct, "África do Sul"]].forEach(([d, nm], i) => { const ln = ms.append("path").attr("d", `M${tp[0]} ${tp[1]} L${d[0]} ${d[1]}`).attr("stroke", "#fff").attr("stroke-width", 8).attr("stroke-dasharray", "4 20").attr("stroke-linecap", "round").node(); tl.set(ln, { opacity: 0 }, t0); tl.set(ln, { opacity: 1 }, st(9) + i * 0.3);
       const lb = L.div(w, "glabel", `left:${d[0]}px;top:${d[1] - 80}px;font-size:48px;color:#ffd21f;z-index:5`, nm); gsap.set(lb, { xPercent: -50 }); tl.set(lb, { opacity: 0 }, t0); appear(lb, st(9) + i * 0.3, "blip", 0.4); });
+    const lone = L.div(w._sc, "", "position:absolute;inset:0;z-index:12;opacity:0;background:linear-gradient(#8aa4b8,#c8d6e0)");
+    L.svg(lone, `<rect x="-20" y="1000" width="1120" height="940" fill="#2f5f86"/>` + [...Array(16)].map((_, k) => `<path d="M${(k * 137) % 1080} ${1060 + (k % 6) * 140} q30 -18 60 0 q30 18 60 0" stroke="#fff" stroke-width="5" fill="none" opacity=".5"/>`).join("") + `<path d="M380 1010 L500 860 Q540 820 580 860 L700 1010Z" fill="#4f7a3a" stroke="${INK}" stroke-width="5"/><path d="M500 860 Q540 830 580 860 L560 880 Q540 868 520 880Z" fill="#7a6a5a"/>` + L.cloud(540, 800, 0.35, "#f3f3f3"), 0, 0, 1080, 1920, 1, "loneIsl");
+    const sea2 = L.svg(lone, [...Array(6)].map((_, k) => `<path d="M${k * 200 - 100} 30 q50 -30 100 0 q50 30 100 0" stroke="#fff" stroke-width="7" fill="none" opacity=".7"/>`).join(""), 0, 1250, 1200, 60, 2); tl.fromTo(sea2, { x: 0 }, { x: -200, duration: 1.6, ease: "none" }, at(8, 0.5));
+    L.birds(lone, 3, 88).forEach((b, k) => tl.fromTo(b, { x: 0 }, { x: 200 + k * 40, duration: 2, ease: "none" }, at(8, 0.5)));
+    const nada = label(lone, "nada em volta", 290, 520, "font-family:Hand;font-size:100px;color:#fff;z-index:5"); appear(nada, at(8, 0.55), null);
+    tl.set(lone, { opacity: 1 }, at(8, 0.5)); tl.set(lone, { opacity: 0 }, st(9) - 0.05); sfx(at(8, 0.5), "wind", 0.5); sfx(at(8, 0.5) - 0.03, "whoosh", 0.5);
     const c1 = card(w, 230, "a mais isolada", "ilha habitada do planeta", ""); c1.querySelector(".big").style.fontSize = "96px"; appear(c1, at(8, 0.3), "ding", 0.7); hide(c1, st(9) - 0.05);
     const c2 = card(w, 230, "+2.400 km", "até os vizinhos mais próximos", ""); appear(c2, at(9, 0.3), "ding", 0.7); }
 
