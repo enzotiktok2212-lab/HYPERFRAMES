@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<title>Capa Havaí</title>
+<script src="assets/gsap.min.js"></script>
+<script src="assets/d3.min.js"></script>
+<script src="assets/geo.js"></script>
+<script src="assets/lib.js"></script>
+<script src="assets/dress.js"></script>
+<style>
+  @font-face { font-family: "Rubik"; font-weight: 900; src: url("assets/rubik-latin-900-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Rubik"; font-weight: 700; src: url("assets/rubik-latin-700-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Lilita"; src: url("assets/lilita-one-latin-400-normal.woff2") format("woff2"); }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; background: #f2c48a; font-family: "Rubik", sans-serif; }
+  #c { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: linear-gradient(#f59a5a 0%, #f6c27a 35%, #bfe0ee 70%); }
+  .t { position: absolute; left: 0; right: 0; text-align: center; font-family: "Lilita"; color: #fff; -webkit-text-stroke: 16px #1f1a17; paint-order: stroke fill; text-shadow: 0 12px 0 rgba(0,0,0,.35); line-height: .98; }
+  .y { color: #ffd21f; }
+  .card { position: absolute; background: #f6efe2; border: 6px solid #1f1a17; border-radius: 24px; box-shadow: 0 14px 0 rgba(0,0,0,.3); text-align: center; color: #1f1a17; padding: 14px 30px 18px; }
+  .card b { display: block; font-family: "Rubik"; font-weight: 900; font-size: 92px; color: #c8553d; line-height: 1; }
+  .card span { font-weight: 700; font-size: 34px; }
+  .tag { position: absolute; padding: 12px 26px; border-radius: 40px; background: #c2185b; color: #fff; font-weight: 900; font-size: 40px; border: 5px solid #1f1a17; }
+  .vig { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(40,20,0,.35) 100%); }
+</style>
+</head>
+<body>
+<div id="c"></div>
+<script>
+(function () {
+  const L = window.LIB, K = "#2a2420", INK = K, c = document.getElementById("c");
+  const palm = (x, y, s) => { s = s || 1; return `<g transform="translate(${x},${y}) scale(${s})"><path d="M0 0 C-10 -120 10 -220 30 -320" stroke="#7a5a3a" stroke-width="22" fill="none"/>` + [[-120, -40], [-60, -100], [60, -110], [130, -40], [100, 30], [-100, 30]].map(([dx, dy]) => `<path d="M30 -320 Q${30 + dx / 2} ${-340 + dy / 2 - 30} ${30 + dx} ${-320 + dy}" stroke="#2e8a3a" stroke-width="26" fill="none" stroke-linecap="round"/>`).join("") + `<circle cx="22" cy="-312" r="12" fill="#6b4a32"/><circle cx="40" cy="-306" r="12" fill="#6b4a32"/></g>`; };
+  const beach = (seed, opt) => { opt = opt || {}; L.seed(seed); let h = `<rect x="0" y="0" width="1080" height="980" fill="url(#skyH${seed})"/><defs><linearGradient id="skyH${seed}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${opt.sunset ? "#f2905a" : "#6cc6ff"}"/><stop offset="1" stop-color="${opt.sunset ? "#ffd27a" : "#c8ecff"}"/></linearGradient></defs>`;
+    if (opt.sunset) h += `<circle cx="540" cy="900" r="170" fill="#ffd27a" stroke="#f2a05a" stroke-width="10"/>`;
+    h += `<path d="M560 980 L640 760 Q700 690 780 720 L860 790 L1100 980Z" fill="#7a9a5a" stroke="${INK}" stroke-width="4"/><path d="M640 760 Q700 720 760 740" stroke="${INK}" stroke-width="3" fill="none" opacity=".5"/>`;
+    if (opt.hotels !== false) { for (let i = 0; i < 6; i++) { const x = -20 + i * 95, hh = 200 + L.rnd() * 160; h += `<rect x="${x}" y="${980 - hh}" width="88" height="${hh}" fill="${["#f3e8d2", "#e8d4b0", "#ffffff", "#d9e4ea"][i % 4]}" stroke="${INK}" stroke-width="3"/>` + [...Array(Math.floor(hh / 28))].map((_, k) => `<path d="M${x + 8} ${980 - hh + 16 + k * 28} h72" stroke="#7fb3d5" stroke-width="10"/>`).join(""); } }
+    h += `<rect x="-20" y="980" width="1120" height="240" fill="#1f9ed6" stroke="${INK}" stroke-width="4"/>` + [...Array(10)].map((_, k) => `<path d="M${k * 120} ${1010 + (k % 3) * 60} q30 -14 60 0 q30 14 60 0" stroke="#fff" stroke-width="5" fill="none" opacity=".7"/>`).join("");
+    h += `<path d="M-20 1220 Q540 1180 1100 1220 L1100 1940 L-20 1940Z" fill="#f2dca0" stroke="${INK}" stroke-width="4"/>` + [...Array(30)].map(() => `<circle cx="${L.rnd() * 1080}" cy="${1250 + L.rnd() * 650}" r="${2 + L.rnd() * 3}" fill="#c9a86a"/>`).join("");
+    h += palm(80, 1240, 1.1) + palm(1000, 1260, 1.2) + (opt.morePalms ? palm(300, 1000, 0.6) + palm(860, 1000, 0.7) : "");
+    if (opt.umbrella !== false) h += `<path d="M760 1300 V1150" stroke="${INK}" stroke-width="6"/><path d="M640 1160 Q760 1060 880 1160Z" fill="#ff5a7a" stroke="${INK}" stroke-width="4"/><path d="M700 1160 Q760 1080 820 1160" fill="#fff" opacity=".6"/>`;
+    return h; };
+
+  L.svg(c, beach(7, { sunset: true, morePalms: true }), 0, 0, 1080, 1920, 1);
+  L.birds(c, 5, 9);
+  for (let i = 0; i < 2; i++) L.svg(c, `<path d="M0 20 Q40 0 80 20 Q40 30 0 20Z" fill="#ffd21f" stroke="${K}" stroke-width="3"/><circle cx="40" cy="-4" r="8" fill="#8d5a3b"/><path d="M40 4 v14" stroke="${K}" stroke-width="6"/>`, 200 + i * 460, 1050 + i * 60, 80, 40, 3);
+  // prancha de surf
+  L.svg(c, `<path d="M60 0 Q120 300 60 620 Q0 300 60 0Z" fill="#ff5a7a" stroke="${K}" stroke-width="7"/><path d="M60 40 V580" stroke="#fff" stroke-width="10"/>`, 640, 900, 120, 620, 6);
+  // lata de SPAM
+  L.svg(c, `<rect x="0" y="0" width="190" height="120" rx="16" fill="#3f51b5" stroke="${K}" stroke-width="6"/><rect x="0" y="34" width="190" height="50" fill="#ffd21f"/><text x="95" y="72" text-anchor="middle" font-family="Rubik" font-weight="900" font-size="38" fill="#c8202f">SPAM</text>`, 60, 1560, 190, 120, 9);
+  L.p(c, { style: "long", skin: "#b47a50", dress: true, top: "#ff5a7a", aloha: "#ffffff", flower: "#ffd21f", lei: "#ffffff", skirt: true, chinelo: "#ff5a7a", arms: "up", expr: "smile" }, 260, 1600, 640, 7);
+  L.p(c, { style: "short", skin: "#a0703f", top: "#1f9e9a", aloha: "#ffffff", bottom: "#e8d4b0", lei: "#ff5a7a", chinelo: "#ffd21f", arms: "up", expr: "open" }, 560, 1650, 720, 8);
+  L.p(c, { style: "grey", skin: "#8d5a3b", top: "#ff8a3d", aloha: "#ffd21f", bottom: "#e8d4b0", old: true, glasses: true, beard: "#e6e6e6", chinelo: "#3f51b5", arms: "hold", expr: "smile", holdL: `<g transform="translate(58,168) rotate(-30)"><ellipse cx="0" cy="0" rx="22" ry="30" fill="#c8902b" stroke="${K}" stroke-width="3"/><rect x="-4" y="-80" width="8" height="60" fill="#6b4a32"/></g>` }, 870, 1680, 600, 9);
+  // globo com pin no Havaí
+  const g = L.div(c, "", "position:absolute;left:740px;top:640px;width:300px;height:340px;z-index:10");
+  const sv = d3.select(g).append("svg").attr("width", 300).attr("height", 340);
+  const pr = d3.geoOrthographic().scale(130).translate([150, 200]).rotate([157, -10]).clipAngle(90), pa = d3.geoPath(pr);
+  sv.append("path").attr("d", pa({ type: "Sphere" })).attr("fill", "#1f8cf0").attr("stroke", K).attr("stroke-width", 6);
+  sv.append("path").attr("d", pa(GEO.land110)).attr("fill", "#5fd35a").attr("stroke", "#1e4d1c").attr("stroke-width", 2);
+  sv.append("path").attr("d", pa(GEO.hi)).attr("fill", "#ff3b30").attr("stroke", K).attr("stroke-width", 3);
+  const p = pr([-157, 20.5]); sv.append("circle").attr("cx", p[0]).attr("cy", p[1]).attr("r", 18).attr("fill", "none").attr("stroke", "#ffd21f").attr("stroke-width", 5);
+  sv.append("path").attr("d", `M${p[0] - 8} ${p[1] - 70} L${p[0]} ${p[1]} L${p[0] + 8} ${p[1] - 70}Z`).attr("fill", "#ff3b30").attr("stroke", K).attr("stroke-width", 4);
+  sv.append("circle").attr("cx", p[0]).attr("cy", p[1] - 84).attr("r", 24).attr("fill", "#fff").attr("stroke", K).attr("stroke-width", 6); sv.append("circle").attr("cx", p[0]).attr("cy", p[1] - 84).attr("r", 9).attr("fill", K);
+  L.div(c, "t", "top:250px;font-size:104px;z-index:20", `E SE VOCÊ<br/>NASCESSE NO<br/><span class="y">HAVAÍ?</span>`);
+  L.div(c, "tag", "left:0;right:0;margin:0 auto;width:820px;text-align:center;top:590px;z-index:20;transform:rotate(-2deg);white-space:nowrap;background:#1f9e9a", "UMA VIDA INTEIRA EM HONOLULU");
+  L.div(c, "card", "left:60px;top:700px;z-index:20;transform:rotate(-4deg)", `<b>1 em 9 mil</b><span>bebês do mundo<br/>nasce aqui</span>`);
+  L.div(c, "", "position:absolute;inset:0;z-index:30", `<div class="vig"></div>`);
+})();
+</script>
+</body>
+</html>
