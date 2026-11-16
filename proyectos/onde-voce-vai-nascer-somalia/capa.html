@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Capa Somália</title>
+    <script src="assets/d3.min.js"></script>
+    <script src="assets/geo.js"></script>
+    <script src="assets/lib.js"></script>
+    <script src="assets/dress.js"></script>
+    <script src="assets/somalia.js"></script>
+    <style>
+      @font-face {
+        font-family: "Rubik";
+        font-weight: 900;
+        src: url("assets/rubik-latin-900-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Rubik";
+        font-weight: 700;
+        src: url("assets/rubik-latin-700-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Lilita";
+        src: url("assets/lilita-one-latin-400-normal.woff2") format("woff2");
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        overflow: hidden;
+        background: #f2c48a;
+        font-family: "Rubik", sans-serif;
+      }
+      #c {
+        position: relative;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        filter: saturate(1.15) contrast(1.05);
+      }
+      .sq #c {
+        height: 1080px;
+      }
+      .t {
+        position: absolute;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-family: "Lilita";
+        color: #fff;
+        -webkit-text-stroke: 16px #1f1a17;
+        paint-order: stroke fill;
+        text-shadow: 0 12px 0 rgba(0, 0, 0, 0.35);
+        line-height: 0.98;
+      }
+      .y {
+        color: #ffd21f;
+      }
+      .card {
+        position: absolute;
+        background: #f6efe2;
+        border: 6px solid #1f1a17;
+        border-radius: 24px;
+        box-shadow: 0 14px 0 rgba(0, 0, 0, 0.3);
+        text-align: center;
+        color: #1f1a17;
+        padding: 14px 30px 18px;
+      }
+      .card b {
+        display: block;
+        font-family: "Rubik";
+        font-weight: 900;
+        font-size: 92px;
+        color: #c8553d;
+        line-height: 1;
+        white-space: nowrap;
+      }
+      .card span {
+        font-weight: 700;
+        font-size: 34px;
+      }
+      .tag {
+        position: absolute;
+        padding: 12px 30px;
+        border-radius: 40px;
+        background: #4189dd;
+        color: #fff;
+        font-weight: 900;
+        font-size: 50px;
+        border: 5px solid #1f1a17;
+        box-shadow: 0 10px 0 rgba(0, 0, 0, 0.3);
+      }
+      .vig {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          ellipse at 50% 50%,
+          transparent 55%,
+          rgba(40, 20, 0, 0.35) 100%
+        );
+      }
+    </style>
+  </head>
+  <body>
+    <div id="c"></div>
+    <script>
+      (function () {
+        const SQ = location.search.includes("sq");
+        if (SQ) document.body.classList.add("sq");
+        const L = window.LIB,
+          K = "#2a2420",
+          c = document.getElementById("c");
+        // posições: vertical (zona central 3:4 = y 240–1680) e quadrada
+        const P = SQ
+          ? {
+              base: 900,
+              title: 30,
+              fs: 74,
+              tag: 290,
+              card: [660, 360],
+              cs: 0.68,
+              globe: [20, 350],
+              camel: [480, 560, 0.95],
+              ay: [390, 1050, 560],
+              dad: 0,
+            }
+          : {
+              base: 1330,
+              title: 280,
+              fs: 100,
+              tag: 620,
+              card: [600, 740],
+              cs: 0.8,
+              globe: [30, 730],
+              camel: [400, 1030, 1.25],
+              ay: [290, 1680, 760],
+              dad: 0,
+            };
+        const H = SQ ? 1080 : 1920;
+        let bgh =
+          `<defs><linearGradient id="skC" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8a4a"/><stop offset=".55" stop-color="#ffc878"/><stop offset="1" stop-color="#ffe8b8"/></linearGradient></defs><rect width="1080" height="${H}" fill="url(#skC)"/>` +
+          `<circle cx="540" cy="${P.base - 420}" r="150" fill="#ffe06a" stroke="${K}" stroke-width="5"/>` +
+          L.soHouses(P.base, 7, { flags: true, mx: 300, mx2: 880 }) +
+          L.soStreet(P.base, 8, { noCart: true, goats: false }) +
+          L.bunting(-20, P.base - 520, 1100, P.base - 530, 22, 70);
+        L.svg(c, bgh, 0, 0, 1080, H, 1);
+        L.svg(c, L.bgPeople(1080, P.base + 110, 14, 31, 1.1), 0, 0, 1080, H, 2);
+        // camelo
+        const cs = P.camel[2];
+        L.svg(
+          c,
+          `<g transform="scale(${cs * 1.6})">${L.camel("#c9955a", { blanket: "#c8202f" })}</g>`,
+          P.camel[0],
+          P.camel[1],
+          330 * cs * 1.6,
+          300 * cs * 1.6,
+          3,
+        );
+        if (P.dad)
+          L.p(
+            c,
+            {
+              style: "bald",
+              skin: "#6a3f28",
+              top: "#f3efe6",
+              macawiis: "#6a3a8a",
+              plaid: "#fff",
+              koofiyad: "#fff",
+              kTrim: "#2e8b3a",
+              beard: "#e8762b",
+              old: true,
+              cane: true,
+              shawl: "#c8202f",
+              arms: "fwd",
+              expr: "smile",
+            },
+            900,
+            1640,
+            480,
+            5,
+          );
+        // Ayaan com chá e banana
+        L.p(
+          c,
+          {
+            style: "none",
+            hijab: "#1f9e9a",
+            skin: "#7d4f35",
+            dirac: true,
+            top: "#f2a71b",
+            diracTrim: "#c8202f",
+            bottom: "#3a3028",
+            arms: "up",
+            expr: "open",
+            holdR: `<g transform="translate(96,-28) scale(.35)">${L.teaGlass(true)}</g>`,
+            holdL: `<g transform="translate(4,10)">${L.banana(0, 0, 60, 0.7)}</g>`,
+          },
+          P.ay[0],
+          P.ay[1],
+          P.ay[2],
+          8,
+        );
+        // globo com pin
+        const g = L.div(
+          c,
+          "",
+          `position:absolute;left:${P.globe[0]}px;top:${P.globe[1]}px;width:260px;height:300px;z-index:10`,
+        );
+        const sv = d3.select(g).append("svg").attr("width", 260).attr("height", 300);
+        const pr = d3
+            .geoOrthographic()
+            .scale(110)
+            .translate([130, 180])
+            .rotate([-46, -4])
+            .clipAngle(90),
+          pa = d3.geoPath(pr);
+        sv.append("path")
+          .attr("d", pa({ type: "Sphere" }))
+          .attr("fill", "#1660c0")
+          .attr("stroke", K)
+          .attr("stroke-width", 6);
+        sv.append("path")
+          .attr("d", pa(GEO.land110))
+          .attr("fill", "#5fd35a")
+          .attr("stroke", "#1e4d1c")
+          .attr("stroke-width", 2);
+        sv.append("path")
+          .attr("d", pa(GEO.tr))
+          .attr("fill", "#4189dd")
+          .attr("stroke", K)
+          .attr("stroke-width", 3);
+        const p = pr([46, 6]);
+        sv.append("path")
+          .attr("d", `M${p[0] - 8} ${p[1] - 66} L${p[0]} ${p[1]} L${p[0] + 8} ${p[1] - 66}Z`)
+          .attr("fill", "#ff3b30")
+          .attr("stroke", K)
+          .attr("stroke-width", 4);
+        sv.append("circle")
+          .attr("cx", p[0])
+          .attr("cy", p[1] - 80)
+          .attr("r", 22)
+          .attr("fill", "#fff")
+          .attr("stroke", K)
+          .attr("stroke-width", 6);
+        sv.append("circle")
+          .attr("cx", p[0])
+          .attr("cy", p[1] - 80)
+          .attr("r", 8)
+          .attr("fill", K);
+        L.div(
+          c,
+          "t",
+          `top:${P.title}px;font-size:${P.fs}px;z-index:20`,
+          `ONDE VOCÊ VAI<br/>NASCER<br/><span class="y">DESSA VEZ?</span>`,
+        );
+        L.div(
+          c,
+          "tag",
+          `left:0;right:0;margin:0 auto;width:520px;text-align:center;top:${P.tag}px;z-index:20;transform:rotate(-2deg);white-space:nowrap`,
+          `SOMÁLIA <svg width="84" height="56" viewBox="0 0 84 56" style="vertical-align:middle">${L.flagDR(2, 2, 80, 52)}</svg>`,
+        );
+        L.div(
+          c,
+          "card",
+          `left:${P.card[0]}px;top:${P.card[1]}px;z-index:20;transform:rotate(4deg) scale(${P.cs});transform-origin:0 0`,
+          `<b>7 milhões</b><span>de camelos:<br/>nº 1 do mundo</span>`,
+        );
+        L.div(c, "", "position:absolute;inset:0;z-index:30", `<div class="vig"></div>`);
+      })();
+    </script>
+  </body>
+</html>
