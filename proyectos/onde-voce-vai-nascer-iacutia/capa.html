@@ -110,7 +110,7 @@
           K = "#1f1a17";
         const SQ = location.hash === "#sq";
         const H = SQ ? 1080 : 1920,
-          dy = SQ ? -420 : 0;
+          dy = SQ ? -350 : 0;
         document.body.style.height = H + "px";
         const c = document.getElementById("c");
         c.style.height = H + "px";
@@ -217,29 +217,51 @@
           .attr("r", 9)
           .attr("fill", K);
         // textos
-        const T0 = SQ ? 40 : 300;
+        const T0 = SQ ? 34 : 250;
         L.div(
           c,
           "t",
           `top:${T0}px;font-size:${SQ ? 80 : 92}px;z-index:20`,
           `ONDE VOCÊ VAI NASCER<br/><span class="y">DESSA VEZ?</span>`,
         );
-        L.div(
+        // RÚSSIA grande, letras nas cores da bandeira + bandeira
+        const ry = T0 + (SQ ? 178 : 205),
+          rs = SQ ? 118 : 150;
+        const rb = L.div(
           c,
-          "t",
-          `top:${T0 + (SQ ? 188 : 218)}px;font-size:${SQ ? 74 : 88}px;z-index:20;color:#ff5a3c;transform:rotate(-3deg);white-space:nowrap`,
-          "RÚSSIA",
+          "",
+          `position:absolute;left:0;right:0;top:${ry}px;height:${rs * 1.05}px;z-index:20;transform:rotate(-3deg)`,
         );
+        const word = (css) =>
+          `<div style="position:absolute;left:0;right:0;top:0;text-align:center;padding-left:${SQ ? 120 : 150}px;font-family:Rubik;font-weight:900;font-size:${rs}px;line-height:1;letter-spacing:2px;white-space:nowrap;${css}">RÚSSIA</div>`;
+        rb.innerHTML =
+          word(
+            "color:#1f1a17;-webkit-text-stroke:26px #1f1a17;text-shadow:0 12px 0 rgba(0,0,0,.35)",
+          ) +
+          word(
+            "background:linear-gradient(#ffffff 0 36%,#1c3f9e 36% 66%,#d52b1e 66%);-webkit-background-clip:text;background-clip:text;color:transparent",
+          );
+        const fw = SQ ? 150 : 190;
+        const fl = L.svg(
+          c,
+          L.flagRU(10, 14, fw, fw * 0.66, { pole: fw * 0.95 }),
+          SQ ? 110 : 60,
+          ry - (SQ ? 14 : 20),
+          fw + 30,
+          fw * 1.7,
+          21,
+        );
+        fl.style.transform = "rotate(-8deg)";
         L.div(
           c,
           "t",
-          `top:${T0 + (SQ ? 262 : 306)}px;font-size:${SQ ? 42 : 50}px;z-index:20;-webkit-text-stroke:10px #1f1a17;transform:rotate(-3deg);white-space:nowrap`,
+          `top:${ry + rs + (SQ ? 8 : 14)}px;font-size:${SQ ? 44 : 54}px;z-index:20;-webkit-text-stroke:11px #1f1a17;transform:rotate(-3deg);white-space:nowrap`,
           "Iacútia",
         );
         L.div(
           c,
           "card",
-          `left:330px;top:${T0 + (SQ ? 318 : 375)}px;z-index:20;transform:rotate(-3deg)`,
+          `left:330px;top:${T0 + (SQ ? 380 : 470)}px;z-index:20;transform:rotate(-3deg)`,
           `<b style="color:#2f7de0;font-size:120px">-64°C</b><span>a cidade grande<br/>mais fria do mundo</span>`,
         );
         L.div(c, "", "position:absolute;inset:0;z-index:30", `<div class="vig"></div>`);

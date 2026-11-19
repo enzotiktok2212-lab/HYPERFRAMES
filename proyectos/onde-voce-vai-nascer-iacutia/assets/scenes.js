@@ -463,16 +463,17 @@
         if (kind === "iris") {
           tl.fromTo(
             S.sc,
-            { clipPath: "circle(0% at 50% 45%)" },
+            { scale: 0.25, opacity: 0, rotation: -8 },
             {
-              clipPath: "circle(80% at 50% 45%)",
-              duration: 0.36,
-              ease: "power2.out",
+              scale: 1,
+              opacity: 1,
+              rotation: 0,
+              duration: 0.34,
+              ease: "back.out(1.3)",
               immediateRender: false,
             },
             t,
           );
-          tl.set(S.sc, { clipPath: "none" }, t + 0.4);
           sfx(t - 0.05, "tr_iris", 0.7);
         }
         if (kind === "spin") {
@@ -756,12 +757,6 @@
         if (B !== A)
           tl.to(C, Object.assign({ duration: Math.max(0.25, d - 0.02), ease }, B), t + 0.01);
       }
-      tl.fromTo(
-        C,
-        { filter: "blur(5px)" },
-        { filter: "blur(0px)", duration: 0.12, ease: "none", immediateRender: false },
-        t,
-      );
       if (SLOW[ty] && d > 0.7) {
         tl.to("#vig2", { opacity: 1, duration: 0.45, ease: "sine.out" }, t);
         tl.to("#vig2", { opacity: 0, duration: 0.25 }, t + d - 0.25);
@@ -1068,11 +1063,21 @@
   drawA(0);
   tl.fromTo(A.w, { scale: 1.9 }, { scale: 1, duration: 0.38, ease: "power4.out" }, 0);
   sfx(0, "zoomin", 1.0);
-  tl.to(A.w, { scale: 1.1, duration: tStop - 0.4, ease: "sine.inOut" }, 0.4);
+  tl.fromTo(
+    A.w,
+    { scale: 1 },
+    { scale: 1.1, immediateRender: false, duration: tStop - 0.4, ease: "sine.inOut" },
+    0.4,
+  );
   sfx(0.4, "zoomslow", 0.7);
   tl.to("#vig2", { opacity: 1, duration: 0.5 }, 0.4);
   tl.to("#vig2", { opacity: 0, duration: 0.3 }, tStop - 0.2);
-  tl.to(A.w, { scale: 1, duration: 0.4, ease: "power2.out" }, tZ1);
+  tl.fromTo(
+    A.w,
+    { scale: 1.1 },
+    { scale: 1, immediateRender: false, duration: 0.4, ease: "power2.out" },
+    tZ1,
+  );
   tl.fromTo(
     A.title,
     { y: -40, scale: 1.2 },
@@ -1436,13 +1441,13 @@
   const shiver = (ch, t, d) =>
     tl.fromTo(
       ch,
-      { x: -4 },
+      { x: -3 },
       {
-        x: 4,
-        duration: 0.05,
+        x: 3,
+        duration: 0.12,
+        ease: "sine.inOut",
         yoyo: true,
-        repeat: reps(d, 0.05),
-        ease: "none",
+        repeat: reps(d, 0.12),
         immediateRender: false,
       },
       t,
@@ -2618,11 +2623,11 @@
         cr,
         { y: 0 },
         {
-          y: -3,
-          duration: 0.06,
+          y: -2,
+          duration: 0.14,
           yoyo: true,
-          repeat: reps(4.4, 0.06),
-          ease: "none",
+          repeat: reps(4.4, 0.14),
+          ease: "sine.inOut",
           immediateRender: false,
         },
         t0,
@@ -4151,7 +4156,12 @@
     G.draw(-DR[0], -10, 380, 0, 0);
     tl.fromTo(G.w, { scale: 1.9 }, { scale: 1, duration: 0.38, ease: "power4.out" }, t0);
     sfx(t0, "zoomin", 1.0);
-    tl.to(G.w, { scale: 1.08, duration: 1.2, ease: "sine.inOut" }, t0 + 0.4);
+    tl.fromTo(
+      G.w,
+      { scale: 1 },
+      { scale: 1.08, immediateRender: false, duration: 1.2, ease: "sine.inOut" },
+      t0 + 0.4,
+    );
     L.div(
       G.w,
       "",
