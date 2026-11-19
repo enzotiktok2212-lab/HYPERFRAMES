@@ -2,12 +2,13 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <title>Capa Tristão</title>
+    <title>Capa Iacútia</title>
     <script src="assets/gsap.min.js"></script>
     <script src="assets/d3.min.js"></script>
     <script src="assets/geo.js"></script>
     <script src="assets/lib.js"></script>
     <script src="assets/dress.js"></script>
+    <script src="assets/yakut.js"></script>
     <style>
       @font-face {
         font-family: "Rubik";
@@ -106,147 +107,80 @@
     <script>
       (function () {
         const L = window.LIB,
-          K = "#2a2420",
-          INK = K,
-          c = document.getElementById("c");
-        const houses = (base, n, seed) => {
-          L.seed(seed);
-          let h = "";
-          for (let i = 0; i < n; i++) {
-            const x = 20 + i * (1060 / n) + L.rnd() * 20,
-              w = 90 + L.rnd() * 40,
-              hh = 60 + L.rnd() * 30,
-              y = base - L.rnd() * 30,
-              rc = ["#c8202f", "#2f6fbf", "#3f8a4a", "#c8202f", "#2f6fbf"][i % 5];
-            h += `<rect x="${x}" y="${y - hh}" width="${w}" height="${hh}" fill="#f3efe6" stroke="${INK}" stroke-width="3"/><path d="M${x - 6} ${y - hh} L${x + w / 2} ${y - hh - 34} L${x + w + 6} ${y - hh}Z" fill="${rc}" stroke="${INK}" stroke-width="3"/><rect x="${x + 12}" y="${y - hh + 16}" width="18" height="18" fill="#7fb3d5" stroke="${INK}" stroke-width="2"/><rect x="${x + w - 32}" y="${y - 30}" width="18" height="30" fill="#6b4a32"/><path d="M${x + w - 20} ${y - hh - 20} v-24" stroke="#888" stroke-width="8"/>`;
-          }
-          return h;
-        };
-        const island = (seed, o) => {
-          o = o || {};
-          L.seed(seed);
-          const sky = o.sky || ["#9fbfd0", "#dfe8ec"];
-          let h = `<defs><linearGradient id="skT${seed}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${sky[0]}"/><stop offset="1" stop-color="${sky[1]}"/></linearGradient></defs><rect x="0" y="0" width="1080" height="1940" fill="url(#skT${seed})"/>`;
-          h +=
-            `<path d="M-40 1060 L330 520 Q540 330 750 520 L1120 1060Z" fill="#4f7a3a" stroke="${INK}" stroke-width="5"/><path d="M430 420 Q540 360 650 420 L620 470 Q540 440 460 470Z" fill="#7a6a5a" stroke="${INK}" stroke-width="4"/>` +
-            (o.snow
-              ? `<path d="M450 430 Q540 380 630 430 L600 460 Q540 440 480 460Z" fill="#fff"/>`
-              : "");
-          h += [...Array(8)]
-            .map(
-              (_, k) =>
-                `<path d="M${120 + k * 110} ${1000 - (k % 3) * 40} q30 -60 70 -40" stroke="#3f6a2e" stroke-width="6" fill="none" opacity=".6"/>`,
-            )
-            .join("");
-          if (!o.noCloud) h += L.cloud(540, 380, 0.75, "#f3f3f3");
-          h +=
-            `<rect x="-20" y="1040" width="1120" height="420" fill="#6aa84a" stroke="${INK}" stroke-width="4"/>` +
-            houses(1150, 9, seed + 1);
-          h += [...Array(6)]
-            .map(
-              (_, k) =>
-                `<path d="M${-20 + k * 220} 1200 L${80 + k * 220} 1190" stroke="#8a7a5a" stroke-width="5"/>`,
-            )
-            .join("");
-          if (!o.noSheep)
-            for (let k = 0; k < 5; k++) {
-              const x = 80 + L.rnd() * 900,
-                y = 1230 + L.rnd() * 150;
-              h += `<g transform="translate(${x},${y})"><ellipse cx="0" cy="0" rx="26" ry="18" fill="#fff" stroke="${INK}" stroke-width="3"/><circle cx="24" cy="-6" r="9" fill="#2a2420"/><path d="M-12 14 v14 M10 14 v14" stroke="${INK}" stroke-width="4"/></g>`;
-            }
-          h +=
-            `<rect x="-20" y="1440" width="1120" height="500" fill="${o.sea || "#2f6f9a"}" stroke="${INK}" stroke-width="4"/>` +
-            [...Array(14)]
-              .map(
-                (_, k) =>
-                  `<path d="M${(k * 97) % 1080} ${1480 + (k % 5) * 90} q24 -16 48 0 q24 16 48 0" stroke="#fff" stroke-width="5" fill="none" opacity=".55"/>`,
-              )
-              .join("");
-          h += `<path d="M-20 1440 Q300 1410 540 1440 T1100 1440" stroke="#3a3a3a" stroke-width="18" fill="none" opacity=".6"/>`;
-          return h;
-        };
-
-        L.svg(c, island(12, { sky: ["#f2a36a", "#bfe0ee"] }), 0, 0, 1080, 1920, 1);
-        L.birds(c, 5, 9);
-        L.svg(
+          K = "#1f1a17";
+        const SQ = location.hash === "#sq";
+        const H = SQ ? 1080 : 1920,
+          dy = SQ ? -420 : 0;
+        document.body.style.height = H + "px";
+        const c = document.getElementById("c");
+        c.style.height = H + "px";
+        const world = L.div(
           c,
-          `<path d="M0 120 L360 120 L320 190 L40 190Z" fill="#c8202f" stroke="${K}" stroke-width="6"/><rect x="40" y="110" width="300" height="16" fill="#fff"/><rect x="120" y="50" width="160" height="70" fill="#fff" stroke="${K}" stroke-width="5"/><rect x="230" y="10" width="34" height="44" fill="#2a2420"/><rect x="60" y="80" width="50" height="40" fill="#e8892b" stroke="${K}" stroke-width="3"/>`,
-          360,
-          1520,
-          360,
-          200,
-          4,
+          "",
+          `position:absolute;left:0;top:${dy}px;width:1080px;height:1920px`,
+        );
+        L.svg(world, L.yakutskPan(), 0, 0, 1080, 1920, 1);
+        L.svg(world, L.flakes(90, 5, 0, 1920), 0, 0, 1080, 1920, 2);
+        // personagens: Dmitri congelado e uma russa loira
+        L.p(
+          world,
+          {
+            style: "short",
+            hair: "#16110d",
+            skin: L.YSKIN,
+            narrow: true,
+            top: "#d52b1e",
+            parka: "#d52b1e",
+            fur: "#e9dcc4",
+            ushanka: "#5a3a2a",
+            scarfN: "#f2c14e",
+            bottom: "#2a3a5a",
+            boots: "#4a3020",
+            frost: true,
+            arms: "cold",
+            expr: "open",
+          },
+          380,
+          1660,
+          640,
+          6,
         );
         L.p(
-          c,
+          world,
           {
-            style: "scarf",
-            scarf: "#7a2f3a",
-            skin: "#f2c9a0",
+            style: "long",
+            hair: "#f2d27a",
+            skin: "#f6dcc0",
             dress: true,
-            top: "#2f4f7a",
-            knit: "#e8d4b0",
-            boots: "#2a2a2a",
+            parka: "#f6f3ea",
+            top: "#f6f3ea",
+            long: true,
+            fur: "#ffffff",
+            earrings: true,
             arms: "hip",
             expr: "smile",
           },
-          200,
-          1420,
-          420,
-          7,
+          720,
+          1660,
+          620,
+          6,
         );
-        L.p(
-          c,
-          {
-            style: "short",
-            skin: "#e8b98e",
-            top: "#3f6b4a",
-            knit: "#e8d4b0",
-            bottom: "#3d4a5c",
-            boots: "#2e5a3a",
-            beanie: "#c8202f",
-            arms: "fwd",
-            expr: "open",
-            holdR: `<g transform="translate(110,170)"><rect x="-34" y="-60" width="68" height="56" fill="#c9a36b" stroke="${K}" stroke-width="4"/><path d="M-34 -32 H34 M0 -60 V-4" stroke="#8a6a40" stroke-width="4"/></g>`,
-          },
-          500,
-          1440,
-          470,
-          8,
-        );
-        L.p(
-          c,
-          {
-            style: "short",
-            skin: "#e8b98e",
-            top: "#2f4f7a",
-            knit: "#e8d4b0",
-            bottom: "#3d4a5c",
-            rain: true,
-            sleeve: "#f2c21b",
-            cap: "#f2c21b",
-            boots: "#f2c21b",
-            beard: "#6b4a32",
-            arms: "fwd",
-            expr: "smile",
-            holdR: `<g transform="translate(108,176)"><path d="M0 0 Q30 -20 50 10 Q30 30 0 0Z" fill="#e0402a" stroke="${K}" stroke-width="3"/></g>`,
-          },
-          870,
-          1440,
-          410,
-          9,
-        );
+        L.svg(world, L.heart(), 830, 960, 80, 72, 7);
+        // termômetro grande
+        const th = L.svg(world, L.thermo("#2f7de0"), 70, 820, 170, 680, 7);
+        th.querySelector(".merc").style.transform = "scaleY(.06)";
+        // globo com pin
         const g = L.div(
-          c,
+          world,
           "",
-          "position:absolute;left:40px;top:640px;width:300px;height:340px;z-index:10;transform:scale(.85);transform-origin:0 0",
+          "position:absolute;left:770px;top:1120px;width:300px;height:340px;z-index:10;transform:scale(.9);transform-origin:0 0",
         );
         const sv = d3.select(g).append("svg").attr("width", 300).attr("height", 340);
         const pr = d3
             .geoOrthographic()
             .scale(130)
             .translate([150, 200])
-            .rotate([12.3, 25])
+            .rotate([-125, -45])
             .clipAngle(90),
           pa = d3.geoPath(pr);
         sv.append("path")
@@ -259,14 +193,12 @@
           .attr("fill", "#5fd35a")
           .attr("stroke", "#1e4d1c")
           .attr("stroke-width", 2);
-        const p = pr([-12.3, -37.1]);
-        sv.append("circle")
-          .attr("cx", p[0])
-          .attr("cy", p[1])
-          .attr("r", 14)
-          .attr("fill", "#ff3b30")
+        sv.append("path")
+          .attr("d", pa(GEO.ht))
+          .attr("fill", "#3fa0e0")
           .attr("stroke", K)
           .attr("stroke-width", 3);
+        const p = pr([129.7, 62]);
         sv.append("path")
           .attr("d", `M${p[0] - 8} ${p[1] - 70} L${p[0]} ${p[1]} L${p[0] + 8} ${p[1] - 70}Z`)
           .attr("fill", "#ff3b30")
@@ -284,23 +216,25 @@
           .attr("cy", p[1] - 84)
           .attr("r", 9)
           .attr("fill", K);
+        // textos
+        const T0 = SQ ? 40 : 300;
         L.div(
           c,
           "t",
-          "top:280px;font-size:96px;z-index:20",
-          `E SE VOCÊ NASCESSE<br/>NA ILHA MAIS<br/><span class="y">ISOLADA DO MUNDO?</span>`,
+          `top:${T0}px;font-size:${SQ ? 80 : 92}px;z-index:20`,
+          `ONDE VOCÊ VAI NASCER<br/><span class="y">DESSA VEZ?</span>`,
         );
         L.div(
           c,
           "tag",
-          "left:0;right:0;margin:0 auto;width:640px;text-align:center;top:610px;z-index:20;transform:rotate(2deg);white-space:nowrap;background:#2f4f7a",
-          "TRISTÃO DA CUNHA",
+          `left:0;right:0;margin:0 auto;width:600px;text-align:center;top:${T0 + (SQ ? 190 : 220)}px;z-index:20;transform:rotate(-3deg);white-space:nowrap;background:#1c3f9e`,
+          "IACÚTIA · RÚSSIA",
         );
         L.div(
           c,
           "card",
-          "right:50px;top:700px;z-index:20;transform:rotate(4deg) scale(.88);transform-origin:100% 0",
-          `<b>1 em 100<br/>milhões</b><span>só ~200 pessoas<br/>moram aqui</span>`,
+          `left:330px;top:${T0 + (SQ ? 290 : 340)}px;z-index:20;transform:rotate(-3deg)`,
+          `<b style="color:#2f7de0;font-size:120px">-64°C</b><span>a cidade grande<br/>mais fria do mundo</span>`,
         );
         L.div(c, "", "position:absolute;inset:0;z-index:30", `<div class="vig"></div>`);
       })();
