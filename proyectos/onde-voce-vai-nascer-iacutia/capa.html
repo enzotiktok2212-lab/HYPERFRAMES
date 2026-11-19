@@ -121,7 +121,7 @@
         );
         L.svg(world, L.yakutskPan(), 0, 0, 1080, 1920, 1);
         L.svg(world, L.flakes(90, 5, 0, 1920), 0, 0, 1080, 1920, 2);
-        // personagens: Dmitri congelado e uma russa loira
+        // personagens grandes: Dmitri congelado e uma russa loira
         L.p(
           world,
           {
@@ -140,9 +140,9 @@
             arms: "cold",
             expr: "open",
           },
-          380,
-          1660,
-          640,
+          330,
+          2080,
+          1000,
           6,
         );
         L.p(
@@ -160,20 +160,18 @@
             arms: "hip",
             expr: "smile",
           },
-          720,
-          1660,
-          620,
+          790,
+          2080,
+          960,
           6,
         );
-        L.svg(world, L.heart(), 830, 960, 80, 72, 7);
-        // termômetro grande
-        const th = L.svg(world, L.thermo("#2f7de0"), 70, 820, 170, 680, 7);
+        L.svg(world, L.heart(), 920, 1180, 110, 100, 7);
+        const th = L.svg(world, L.thermo("#2f7de0"), 20, 1060, 150, 600, 7);
         th.querySelector(".merc").style.transform = "scaleY(.06)";
-        // globo com pin
         const g = L.div(
           world,
           "",
-          "position:absolute;left:770px;top:1120px;width:300px;height:340px;z-index:10;transform:scale(.9);transform-origin:0 0",
+          "position:absolute;left:820px;top:1330px;width:300px;height:340px;z-index:10;transform:scale(.8);transform-origin:0 0",
         );
         const sv = d3.select(g).append("svg").attr("width", 300).attr("height", 340);
         const pr = d3
@@ -216,25 +214,30 @@
           .attr("cy", p[1] - 84)
           .attr("r", 9)
           .attr("fill", K);
-        // textos
-        const T0 = SQ ? 40 : 300;
+        // textos (Rubik Black, grande, com contorno grosso)
+        const T0 = SQ ? 24 : 220,
+          k = SQ ? 0.78 : 1;
+        const big =
+          "font-family:Rubik;font-weight:900;letter-spacing:-1px;-webkit-text-stroke:20px #1f1a17;line-height:1;white-space:nowrap";
+        L.div(c, "t", `top:${T0}px;font-size:${116 * k}px;z-index:20;${big}`, `ONDE VOCÊ VAI`);
+        L.div(c, "t", `top:${T0 + 118 * k}px;font-size:${116 * k}px;z-index:20;${big}`, `NASCER`);
         L.div(
           c,
           "t",
-          `top:${T0}px;font-size:${SQ ? 80 : 92}px;z-index:20`,
-          `ONDE VOCÊ VAI NASCER<br/><span class="y">DESSA VEZ?</span>`,
+          `top:${T0 + 240 * k}px;font-size:${150 * k}px;z-index:20;${big};color:#ffd21f;transform:rotate(-2deg)`,
+          `DESSA VEZ?`,
         );
         L.div(
           c,
-          "tag",
-          `left:0;right:0;margin:0 auto;width:600px;text-align:center;top:${T0 + (SQ ? 190 : 220)}px;z-index:20;transform:rotate(-3deg);white-space:nowrap;background:#1c3f9e`,
-          "IACÚTIA · RÚSSIA",
+          "t",
+          `top:${T0 + 430 * k}px;font-size:${66 * k}px;z-index:20;font-family:Rubik;font-weight:900;-webkit-text-stroke:14px #1f1a17;letter-spacing:3px;white-space:nowrap`,
+          `IACÚTIA · RÚSSIA`,
         );
         L.div(
           c,
           "card",
-          `left:330px;top:${T0 + (SQ ? 290 : 340)}px;z-index:20;transform:rotate(-3deg)`,
-          `<b style="color:#2f7de0;font-size:120px">-64°C</b><span>a cidade grande<br/>mais fria do mundo</span>`,
+          `left:0;right:0;margin:0 auto;width:${620 * k}px;top:${T0 + 530 * k}px;z-index:20;transform:rotate(-2deg) scale(${k});transform-origin:50% 0`,
+          `<b style="color:#2f7de0;font-size:150px">-64°C</b><span style="font-size:40px">a cidade grande<br/>mais fria do mundo</span>`,
         );
         L.div(c, "", "position:absolute;inset:0;z-index:30", `<div class="vig"></div>`);
       })();
