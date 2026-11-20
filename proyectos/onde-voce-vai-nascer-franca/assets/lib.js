@@ -44,6 +44,13 @@
       torso += `<path d="M100 186 L100 290" stroke="${s}" stroke-width="3"/><circle cx="100" cy="226" r="4" fill="#ffd21f" stroke="${s}" stroke-width="2"/><circle cx="100" cy="256" r="4" fill="#ffd21f" stroke="${s}" stroke-width="2"/>`;
     if (o.outfit === "gown")
       torso += `<path d="M64 196 L56 300 L144 300 L136 196" fill="${o.top}" stroke="${s}" stroke-width="5"/>`;
+    if (o.stripes)
+      torso += [212, 234, 256, 278]
+        .map(
+          (y) =>
+            `<path d="M${56 - (y - 196) * 0.11} ${y} H${144 + (y - 196) * 0.11}" stroke="${o.stripes}" stroke-width="10"/>`,
+        )
+        .join("");
     const back = o.backpack
       ? `<rect x="46" y="190" width="108" height="96" rx="18" fill="${o.backpack}" stroke="${s}" stroke-width="5"/><rect x="46" y="190" width="108" height="34" rx="14" fill="${o.backpack}" stroke="${s}" stroke-width="5" opacity=".9"/>`
       : "";
@@ -128,7 +135,7 @@
       <circle cx="40" cy="132" r="13" fill="${sk}" stroke="${s}" stroke-width="5"/><circle cx="160" cy="132" r="13" fill="${sk}" stroke="${s}" stroke-width="5"/>
       <ellipse cx="100" cy="124" rx="62" ry="60" fill="${sk}" stroke="${s}" stroke-width="5"/>
       <ellipse cx="114" cy="96" rx="22" ry="12" fill="#fff" opacity=".18"/>
-      ${hairF}
+      ${hairF}${o.beret ? `<path d="M30 92 Q22 34 104 30 Q182 36 172 94 Q100 70 30 92Z" fill="${o.beret}" stroke="${s}" stroke-width="5" stroke-linejoin="round"/><path d="M104 30 l4 -16" stroke="${s}" stroke-width="7" stroke-linecap="round"/><path d="M52 66 Q80 48 112 46" stroke="#fff" stroke-width="6" fill="none" opacity=".35" stroke-linecap="round"/>` : ""}
       <g class="eyes-open" opacity="${eyesOpen ? 1 : 0}">${eye(78)}${eye(122)}</g>
       <g class="eyes-closed" opacity="${ex === "sleep" ? 1 : 0}">${eyeC(78)}${eyeC(122)}</g>
       <g class="eyes-happy" opacity="${ex === "happy" ? 1 : 0}">${eyeH(78)}${eyeH(122)}</g>
