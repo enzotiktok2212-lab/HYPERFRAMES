@@ -241,7 +241,7 @@
   };
   // mapa da ponta da América do Sul + Antártida (para distâncias)
   L.miniMap = () =>
-    `<rect width="1080" height="1940" fill="#2f78c4"/>${[...Array(14)].map((_, k) => `<path d="M0 ${k * 140} H1080" stroke="#fff" stroke-width="2" opacity=".12"/><path d="M${k * 80} 0 V1940" stroke="#fff" stroke-width="2" opacity=".12"/>`).join("")}<path d="M300 -20 L620 -20 Q640 200 560 420 Q520 560 600 640 Q560 700 470 690 Q420 600 430 480 Q390 300 300 -20Z" fill="#9bd28a" stroke="${K}" stroke-width="5"/><path d="M470 690 Q520 720 580 700 Q560 740 500 740Z" fill="#9bd28a" stroke="${K}" stroke-width="4"/><path d="M-20 1500 Q200 1380 420 1420 Q520 1300 600 1180 Q640 1220 600 1320 Q560 1440 700 1460 Q900 1420 1100 1480 L1100 1960 L-20 1960Z" fill="#f4fbff" stroke="${K}" stroke-width="5"/>`;
+    `<rect width="1080" height="1940" fill="#2f78c4"/>${[...Array(14)].map((_, k) => `<path d="M0 ${k * 140} H1080" stroke="#fff" stroke-width="2" opacity=".12"/><path d="M${k * 80} 0 V1940" stroke="#fff" stroke-width="2" opacity=".12"/>`).join("")}<path d="M300 -20 L620 -20 Q640 200 560 420 Q520 560 600 640 Q560 700 470 690 Q420 600 430 480 Q390 300 300 -20Z" fill="#9bd28a" stroke="${K}" stroke-width="5"/><path d="M470 690 Q520 720 580 700 Q560 740 500 740Z" fill="#9bd28a" stroke="${K}" stroke-width="4"/><path d="M-20 1280 Q200 1160 420 1200 Q520 1080 600 960 Q640 1000 600 1100 Q560 1220 700 1240 Q900 1200 1100 1260 L1100 1960 L-20 1960Z" fill="#f4fbff" stroke="${K}" stroke-width="5"/>`;
 })();
 (function () {
   const L = window.LIB,

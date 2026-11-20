@@ -1,4 +1,5 @@
 # Roteiro — «Onde você vai nascer dessa vez?» · TRISTÃO DA CUNHA
+
 Remake PT-BR do vídeo de referência (mesma informação e ordem; duração-alvo ≈ original, ~1:45).
 
 Onde você vai nascer dessa vez?

@@ -551,7 +551,11 @@
         }
         return o;
       };
-      p.subs = [...p.S.cut.querySelectorAll(".ch, .prop")]
+      const lays = [...p.S.cut.children].filter(
+        (c) => c !== p.S.w && getComputedStyle(c).opacity > 0.5,
+      );
+      const topL = lays.length ? lays[lays.length - 1] : p.S.w;
+      p.subs = [...topL.querySelectorAll(".ch, .prop")]
         .filter((el) => vis(el) && op(el) > 0.5)
         .map((el) => Object.assign(box(el), { ch: el.classList.contains("ch") }))
         .filter(
@@ -565,6 +569,12 @@
             r.y < 1920,
         )
         .sort((u, v) => v.ch - u.ch || v.h * v.w - u.h * u.w);
+      {
+        // só os protagonistas: os 2 maiores personagens; sem personagens, o maior objeto
+        const chs = p.subs.filter((r) => r.ch).sort((u, v) => v.h * v.w - u.h * u.w);
+        const props = p.subs.filter((r) => !r.ch && r.w * r.h > 60000);
+        p.subs = chs.length ? chs.slice(0, 2) : props.slice(0, 1);
+      }
       p.labs = [...p.S.cut.querySelectorAll(".lbl, .bubble, .glabel, .stamp")]
         .filter((el) => vis(el) && op(el) > 0.5)
         .map(box)
@@ -641,6 +651,13 @@
         cy = (y0 + y1) / 2;
       }
       if (!sub) ty = ["dutch", "persp", "slowin", "whip"][i % 4];
+      // objetos grandes: o zoom não pode cortá-los
+      if (sub && !sub.ch)
+        smax = Math.min(smax, Math.max(1.12, Math.min(950 / sub.w, 1350 / sub.h)));
+      // sujeito perto da borda de cima/baixo: zoom mínimo para conseguir centralizá-lo na vertical
+      let needY = 1;
+      if (sub) needY = cy > 960 ? 960 / Math.max(240, 1920 - cy) : 960 / Math.max(240, cy);
+      needY = Math.min(2.2, needY);
       if (smax < 1.35) {
         ty = ["dutch", "persp", "whip", "tiltx"][i % 4];
         smax = 1.3;
@@ -672,7 +689,7 @@
         }
         if (ty === "pullout") {
           A = F(cx, cy, 2.3, smax);
-          B = F(540, 960, 1.0, smax);
+          B = F(cx, cy, 1.15, smax);
           snd = ["zoomout", 0.7];
           ease = "power3.out";
         }
@@ -689,8 +706,8 @@
           ease = "sine.inOut";
         }
         if (ty === "crane") {
-          A = F(cx, cy + 420, 1.6, smax);
-          B = F(cx, cy - 140, 1.6, smax);
+          A = F(cx, cy + 300, 1.6, smax);
+          B = F(cx, cy, 1.6, smax);
           snd = ["zoomslow", 0.5];
           ease = "power2.inOut";
         }
@@ -718,7 +735,12 @@
           snd = ["whoosh", 0.65];
         }
       };
+      if (needY > 1.02) {
+        MINS = needY;
+        smax = Math.max(smax, needY);
+      }
       mk();
+      MINS = 1;
       // centralizar: se o sujeito termina fora do centro, aproxima mais ou troca de sujeito
       const offc = (B, x) => Math.abs(540 + (x - 540) * B.scale + B.x - 540);
       if (sub && ty !== "pullout" && offc(B, cx) > 110) {
@@ -732,8 +754,8 @@
         if (best) {
           cx = best.x;
           cy = best.r.y + best.r.h * (best.r.ch ? 0.34 : 0.5);
-          MINS = best.n;
-          smax = Math.max(smax, best.n);
+          MINS = Math.max(best.n, needY);
+          smax = Math.max(smax, MINS);
         } else {
           cx = 540;
         }
@@ -1592,7 +1614,7 @@
     flagEl(w, 820, 520, 150, 2, 300);
     const ps = [];
     for (let k = 0; k < 4; k++)
-      ps.push(penguin(w, 160 + k * 230, 1640 + (k % 2) * 40, 230 + (k % 2) * 30, 6));
+      ps.push(penguin(w, 190 + k * 233, 1400 + (k % 2) * 30, 300 + (k % 2) * 30, 6));
     ps.forEach((p, k) => waddle(p, t0 + k * 0.08, 3.6, (k % 2 ? -1 : 1) * 60));
     snowfall(w, t0, 3.8, 40, 4);
     sfx(t0, "wind", 0.45);
@@ -1635,9 +1657,14 @@
           )
           .join(""),
     );
-    // livro da história com bebês acendendo
-    const _book = L.svg(
+    // livro da história com bebês acendendo (reduzido e centralizado)
+    const bk = L.div(
       w,
+      "",
+      "position:absolute;inset:0;z-index:3;transform:translateY(-40px) scale(.78);transform-origin:540px 900px",
+    );
+    const _book = L.svg(
+      bk,
       `<path d="M40 40 Q260 0 500 40 Q740 0 960 40 L960 640 Q740 600 500 640 Q260 600 40 640Z" fill="#f6efdc" stroke="${INK}" stroke-width="8"/><path d="M500 40 V640" stroke="${INK}" stroke-width="6"/><text x="270" y="120" text-anchor="middle" font-family="Hand" font-size="56" fill="#5a4a30">História da</text><text x="730" y="120" text-anchor="middle" font-family="Hand" font-size="56" fill="#5a4a30">Antártida</text>`,
       40,
       560,
@@ -1648,7 +1675,7 @@
     for (let k = 0; k < 11; k++) {
       const x = 120 + (k % 4) * 220 + (Math.floor(k / 4) === 2 ? 110 : 0),
         y = 760 + Math.floor(k / 4) * 150;
-      const b = L.svg(w, babyW(["#e8402a", "#74acdf", "#f2c14e"][k % 3]), x, y, 150, 96, 5);
+      const b = L.svg(bk, babyW(["#e8402a", "#74acdf", "#f2c14e"][k % 3]), x, y, 150, 96, 5);
       tl.set(b, { opacity: 0 }, 0);
       tl.fromTo(
         b,
@@ -2009,17 +2036,17 @@
       1920,
       1,
     );
+    L.div(L3, "prop", "left:60px;top:800px;width:960px;height:320px;z-index:0");
     for (let k = 0; k < 3; k++) {
       const cr = L.svg(
         L3,
         `<rect x="10" y="60" width="260" height="120" rx="14" fill="#f6f3ea" stroke="${INK}" stroke-width="5"/>${[...Array(7)].map((_, j) => `<path d="M${30 + j * 36} 60 V180" stroke="${INK}" stroke-width="3"/>`).join("")}<g transform="translate(70,50)">${babyW()}</g>${L.flagAR(200, 0, 70, 45, { pole: 70 })}`,
-        60 + k * 330,
-        1180 - (k % 2) * 40,
+        70 + k * 320,
+        820 + (k % 2) * 60,
         290,
         200,
         4,
       );
-      cr.classList.add("prop");
       tl.fromTo(
         cr,
         { rotation: -3 },
@@ -2033,7 +2060,7 @@
     // o tratado nem ligou
     const L4 = layer(w, st(14) - 0.05, "whip", "#d8ecf8");
     L.svg(L4, `<rect width="1080" height="1940" fill="#d8ecf8"/>`, 0, 0, 1080, 1920, 1);
-    const tr = L.svg(L4, L.treaty(), 280, 560, 520, 680, 4);
+    const tr = L.svg(L4, L.treaty(), 280, 620, 520, 680, 4);
     tr.classList.add("prop");
     tl.fromTo(
       tr,
@@ -2134,13 +2161,13 @@
           fl(90, 20, 100, 64, { pole: 0 }) +
           `<path d="M90 20 V110" stroke="#6b5a4a" stroke-width="6"/>`,
         x,
-        1100,
+        760,
         300,
         320,
         4,
       );
       hb.classList.add("prop");
-      L.svg(L2, L.clockF(hh, 0, INK), x + 90, 1260, 120, 120, 5);
+      L.svg(L2, L.clockF(hh, 0, INK), x + 90, 920, 120, 120, 5);
     });
     info(
       L2,
@@ -2311,7 +2338,7 @@
     // pra proteger as focas
     const L3 = layer(w, st(22) - 0.05, "slideUp", "#8ec5f0");
     L.svg(L3, sea("skJ3", { seed: 63 }), 0, 0, 1080, 1920, 1);
-    const se = L.svg(L3, L.seal(), 200, 1020, 680, 340, 5);
+    const se = L.svg(L3, L.seal(), 200, 860, 680, 340, 5);
     se.classList.add("prop");
     tl.fromTo(
       se,
@@ -2412,7 +2439,7 @@
       1920,
       1,
     );
-    const th = thermo(L2, 460, 520, 880, "#2f7de0", 0.25, 0.02, st(26), 0.5, 6);
+    const th = thermo(L2, 470, 560, 700, "#2f7de0", 0.25, 0.02, st(26), 0.5, 6);
     shake(th, st(26) + 0.5, 0.4, 6);
     const c = card(
       L2,
@@ -2506,7 +2533,7 @@
     L.svg(L3, L.miniMap(), 0, 0, 1080, 1920, 1);
     const route = L.svg(
       L3,
-      `<path d="M520 1380 Q700 1000 560 700" stroke="#ffffff" stroke-width="12" stroke-dasharray="26 18" fill="none" stroke-linecap="round"/>`,
+      `<path d="M560 1000 Q720 760 560 560" stroke="#ffffff" stroke-width="12" stroke-dasharray="26 18" fill="none" stroke-linecap="round"/>`,
       0,
       0,
       1080,
@@ -2519,21 +2546,21 @@
       { clipPath: "inset(0% 0 0 0)", duration: 1.2, ease: "power2.inOut", immediateRender: false },
       st(30),
     );
-    const you = L.svg(
+    const _you = L.svg(
       L3,
       `<circle cx="40" cy="40" r="34" fill="#e8402a" stroke="${INK}" stroke-width="6"/><text x="40" y="52" text-anchor="middle" font-family="Rubik" font-weight="900" font-size="30" fill="#fff">S</text>`,
-      480,
-      1340,
+      520,
+      960,
       80,
       80,
       5,
     );
-    you.classList.add("prop");
+    L.div(L3, "prop", "left:400px;top:440px;width:320px;height:620px;z-index:0");
     const hos = L.svg(
       L3,
       `<rect x="0" y="0" width="120" height="120" rx="20" fill="#fff" stroke="${INK}" stroke-width="6"/><path d="M60 22 V98 M22 60 H98" stroke="#d52b1e" stroke-width="24"/>`,
       500,
-      620,
+      460,
       120,
       120,
       5,
