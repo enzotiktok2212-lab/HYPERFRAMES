@@ -1,9 +1,10 @@
 # Roteiro — «Onde você vai nascer dessa vez?» · BUTÃO 🇧🇹
 
-Remake PT-BR com estrutura nova, pensada pra retenção até o final.
+Remake PT-BR com estrutura nova, pensada pra retenção até o final. Duração final: 117 s (voz ElevenLabs, sem acelerar).
 Protagonista: **Sonam** (antes Tashi). Esposa: **Dechen** (antes Pema).
 
 ## Como o roteiro segura a retenção
+
 - **Primeiros ~10 s iguais ao original:** pergunta → país → cidade → chance → bebês.
 - **3 perguntas abertas que só se fecham lá na frente:**
   1. «O governo mede se você é feliz» (0:12) → fecha no final: «Oficialmente.»
@@ -110,27 +111,29 @@ Ainda comendo pimenta.
 [curious] Onde você vai nascer da próxima vez?
 
 ## Na tela (resumo)
-| Momento | Cena | Card |
-|---|---|---|
-| Gancho | Globo girando, pin no Butão | — |
-| 1 em 16 mil | Dzong + bilhete «Butão · Thimphu» | 1 em 16.000 |
-| 8 mil bebês | Família com bebê | 8.182 bebês em 2024 · NSB |
-| Feliz × rico | Medidor de felicidade no lugar do cifrão | Felicidade Interna Bruta |
-| TV 1999 | Família em volta da TV antiga | 1999 |
-| Ema datshi | Mesa com tigela, pimentas; pimenta pisca no «guarda essa informação» | pimenta · queijo |
-| Arco e flecha | Campo, alvo longe, flecha na árvore | 12 anos · 145 m |
-| Floresta | Câmera abre e mostra floresta enorme | 71% |
-| Semáforo | Cruzamento, guarita, policial de luvas brancas | 18 anos · 0 semáforos |
-| Saída | Mapa Butão → Austrália, bonequinhos saindo | ~1 em 12 |
-| Paro | Avião raspando nas montanhas | ~50 pilotos · CNN |
-| 1 mês = 1 ano | Balança: 1 mês na Austrália × 12 meses no Butão | — |
-| Aumento | Gráfico subindo + porta batendo | 2023 · +50% |
-| Curry | Restaurante, chef saindo correndo | — |
-| Volta | Avião de volta, casamento no dzong, monges | 30 anos |
-| 73 anos | Pôr do sol nas montanhas, casal idoso | 73 anos |
-| Final | Globo, pin girando | Fontes |
+
+| Momento       | Cena                                                                 | Card                      |
+| ------------- | -------------------------------------------------------------------- | ------------------------- |
+| Gancho        | Globo girando, pin no Butão                                          | —                         |
+| 1 em 16 mil   | Dzong + bilhete «Butão · Thimphu»                                    | 1 em 16.000               |
+| 8 mil bebês   | Família com bebê                                                     | 8.182 bebês em 2024 · NSB |
+| Feliz × rico  | Medidor de felicidade no lugar do cifrão                             | Felicidade Interna Bruta  |
+| TV 1999       | Família em volta da TV antiga                                        | 1999                      |
+| Ema datshi    | Mesa com tigela, pimentas; pimenta pisca no «guarda essa informação» | pimenta · queijo          |
+| Arco e flecha | Campo, alvo longe, flecha na árvore                                  | 12 anos · 145 m           |
+| Floresta      | Câmera abre e mostra floresta enorme                                 | 71%                       |
+| Semáforo      | Cruzamento, guarita, policial de luvas brancas                       | 18 anos · 0 semáforos     |
+| Saída         | Mapa Butão → Austrália, bonequinhos saindo                           | ~1 em 12                  |
+| Paro          | Avião raspando nas montanhas                                         | ~50 pilotos · CNN         |
+| 1 mês = 1 ano | Balança: 1 mês na Austrália × 12 meses no Butão                      | —                         |
+| Aumento       | Gráfico subindo + porta batendo                                      | 2023 · +50%               |
+| Curry         | Restaurante, chef saindo correndo                                    | —                         |
+| Volta         | Avião de volta, casamento no dzong, monges                           | 30 anos                   |
+| 73 anos       | Pôr do sol nas montanhas, casal idoso                                | 73 anos                   |
+| Final         | Globo, pin girando                                                   | Fontes                    |
 
 ## Fontes
+
 - ~8.200 nascimentos em 2024 (8.182): National Statistics Bureau of Bhutan
 - 1 em 16 mil: ~8.200 ÷ ~132 milhões de nascimentos no mundo (ONU WPP)
 - Felicidade Interna Bruta: GNH Centre Bhutan
@@ -145,6 +148,7 @@ Ainda comendo pimenta.
 - Expectativa de vida ~73 anos: Banco Mundial
 
 ## Dados a conferir antes de publicar
+
 - Salário médio de Nu 18 mil: vem de sites agregadores, não do NSB.
 - «Um mês lá ≈ um ano aqui»: vale pro salário mínimo australiano em tempo integral.
 
