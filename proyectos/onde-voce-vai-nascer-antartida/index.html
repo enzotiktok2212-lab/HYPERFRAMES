@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1440, height=2560" />
+    <title>Onde você vai nascer · Antártida</title>
+    <script src="assets/gsap.min.js"></script>
+    <script src="assets/d3.min.js"></script>
+    <script src="assets/geo.js"></script>
+    <script src="assets/timing.js"></script>
+    <script src="assets/lib.js"></script>
+    <script src="assets/dress.js"></script>
+    <script src="assets/yakut.js"></script>
+    <script src="assets/antar.js"></script>
+    <style>
+      @font-face {
+        font-family: "Rubik";
+        font-weight: 700;
+        font-display: block;
+        src: url("assets/rubik-latin-700-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Rubik";
+        font-weight: 900;
+        font-display: block;
+        src: url("assets/rubik-latin-900-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Hand";
+        font-weight: 400;
+        font-display: block;
+        src: url("assets/patrick-hand-latin-400-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Lilita";
+        font-weight: 400;
+        font-display: block;
+        src: url("assets/lilita-one-latin-400-normal.woff2") format("woff2");
+      }
+      :root {
+        --ink: #1f1a17;
+        --paper: #fffaf0;
+        --orange: #c8553d;
+        --yellow: #ffd21f;
+        --red: #ff3b30;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1440px;
+        height: 2560px;
+        overflow: hidden;
+        background: #0f1a3a;
+        font-family: "Rubik", sans-serif;
+      }
+      #root {
+        position: relative;
+        width: 1440px;
+        height: 2560px;
+        overflow: hidden;
+      }
+      #stage,
+      #overlay {
+        left: 0 !important;
+        top: 0 !important;
+        width: 1080px !important;
+        height: 1920px !important;
+        zoom: 1.3333333;
+      }
+      #stage {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        filter: saturate(1.16) contrast(1.05);
+      }
+      .set {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        opacity: 0;
+      }
+      .world {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 1080px;
+        height: 1920px;
+        transform-origin: 50% 50%;
+      }
+      .prop,
+      .ch {
+        position: absolute;
+      }
+      .title {
+        position: absolute;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-family: "Lilita";
+        color: #fff;
+        -webkit-text-stroke: 12px var(--ink);
+        paint-order: stroke fill;
+        line-height: 1.05;
+        letter-spacing: 1px;
+        text-shadow: 0 8px 0 rgba(0, 0, 0, 0.35);
+      }
+      .title .y {
+        color: var(--yellow);
+      }
+      .glabel {
+        position: absolute;
+        font-family: "Lilita";
+        color: #fff;
+        -webkit-text-stroke: 12px var(--ink);
+        paint-order: stroke fill;
+        font-size: 96px;
+        white-space: nowrap;
+      }
+      .card {
+        position: absolute;
+        left: 100px;
+        right: 100px;
+        background: #f6efe2;
+        border: 4px solid var(--ink);
+        border-radius: 18px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        text-align: center;
+        color: var(--ink);
+        padding: 26px 30px 22px;
+        z-index: 20;
+      }
+      .card .big {
+        font-family: "Rubik";
+        font-weight: 900;
+        color: var(--orange);
+        line-height: 1;
+        font-size: 130px;
+        letter-spacing: -2px;
+      }
+      .card .desc {
+        font-weight: 700;
+        font-size: 48px;
+        line-height: 1.12;
+        margin-top: 8px;
+      }
+      .card .src {
+        font-family: "Hand";
+        font-size: 38px;
+        color: #6d6458;
+        margin-top: 8px;
+      }
+      .ticket .head {
+        font-weight: 900;
+        letter-spacing: 4px;
+        color: #6d6458;
+        font-size: 38px;
+        padding-bottom: 14px;
+        border-bottom: 5px dashed #c0b49e;
+      }
+      .ticket .place {
+        font-weight: 900;
+        font-size: 66px;
+        margin-top: 14px;
+      }
+      .age {
+        position: absolute;
+        font-family: "Rubik";
+        font-weight: 900;
+        font-size: 104px;
+        color: #fff;
+        -webkit-text-stroke: 10px var(--ink);
+        paint-order: stroke fill;
+        z-index: 25;
+        white-space: nowrap;
+      }
+      .lbl {
+        position: absolute;
+        font-family: "Rubik";
+        font-weight: 900;
+        font-size: 70px;
+        color: #fff;
+        -webkit-text-stroke: 10px var(--ink);
+        paint-order: stroke fill;
+        white-space: nowrap;
+        z-index: 22;
+      }
+      .bubble {
+        position: absolute;
+        background: #fff;
+        border: 4px solid var(--ink);
+        border-radius: 30px;
+        padding: 18px 40px;
+        font-weight: 900;
+        font-size: 64px;
+        color: var(--ink);
+        white-space: nowrap;
+        z-index: 24;
+        box-shadow: 0 10px 0 rgba(0, 0, 0, 0.2);
+      }
+      .bubble::after {
+        content: "";
+        position: absolute;
+        left: 80px;
+        bottom: -40px;
+        width: 40px;
+        height: 40px;
+        background: #fff;
+        border-right: 7px solid var(--ink);
+        border-bottom: 7px solid var(--ink);
+        transform: skewX(-25deg) rotate(45deg);
+      }
+      .bubble.r::after {
+        left: auto;
+        right: 80px;
+        transform: skewX(25deg) rotate(45deg);
+      }
+      .stamp {
+        position: absolute;
+        font-family: "Lilita";
+        font-size: 130px;
+        color: var(--red);
+        -webkit-text-stroke: 10px var(--ink);
+        paint-order: stroke fill;
+        white-space: nowrap;
+        z-index: 26;
+      }
+      .flash {
+        position: absolute;
+        inset: 0;
+        background: #fff;
+        opacity: 0;
+        z-index: 90;
+        pointer-events: none;
+      }
+      /* subtítulos */
+      #caps {
+        position: absolute;
+        left: 70px;
+        right: 70px;
+        top: 1405px;
+        height: 230px;
+        z-index: 80;
+        overflow: hidden;
+      }
+      .cg {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        text-align: center;
+        opacity: 0;
+        line-height: 1.12;
+      }
+      .cw {
+        display: inline-block;
+        font-weight: 900;
+        font-size: 78px;
+        color: #fff;
+        -webkit-text-stroke: 14px #000;
+        paint-order: stroke fill;
+        margin: 0 18px;
+        text-shadow: 0 7px 0 rgba(0, 0, 0, 0.45);
+      }
+      .cw.k {
+        color: #ffe36b;
+      }
+      .gloss {
+        position: absolute;
+        left: 120px;
+        right: 120px;
+        z-index: 28;
+        background: #ffd21f;
+        border: 6px solid var(--ink);
+        border-radius: 22px;
+        padding: 16px 26px 18px;
+        text-align: center;
+        box-shadow: 0 12px 0 rgba(0, 0, 0, 0.28);
+      }
+      .gloss .gw {
+        font-family: "Lilita";
+        font-size: 74px;
+        color: #fff;
+        -webkit-text-stroke: 9px var(--ink);
+        paint-order: stroke fill;
+        line-height: 1.05;
+      }
+      .gloss .gm {
+        font-weight: 900;
+        font-size: 50px;
+        color: var(--ink);
+        line-height: 1.1;
+        margin-top: 4px;
+      }
+      .info {
+        position: absolute;
+        left: 110px;
+        right: 110px;
+        z-index: 27;
+        background: rgba(18, 28, 58, 0.92);
+        border: 5px solid var(--ink);
+        border-left: 18px solid #ffd21f;
+        border-radius: 18px;
+        padding: 14px 24px;
+        color: #fff;
+        font-weight: 900;
+        font-size: 42px;
+        line-height: 1.15;
+        text-align: left;
+        box-shadow: 0 10px 0 rgba(0, 0, 0, 0.25);
+      }
+      .info small {
+        display: block;
+        font-family: "Hand";
+        font-weight: 400;
+        font-size: 32px;
+        color: #b8c8e8;
+        margin-top: 4px;
+      }
+      .vign2 {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 71;
+        opacity: 0;
+        background: radial-gradient(ellipse at 50% 46%, transparent 48%, rgba(0, 0, 0, 0.42) 100%);
+      }
+      .vign {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 70;
+        background: radial-gradient(ellipse at 50% 46%, transparent 62%, rgba(0, 0, 0, 0.22) 100%);
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="110.5"
+      data-width="1440"
+      data-height="2560"
+    >
+      <div id="stage"></div>
+      <div id="overlay" style="position: absolute; inset: 0; z-index: 60; pointer-events: none">
+        <div class="vign"></div>
+        <div id="vig2" class="vign2"></div>
+        <div id="caps"></div>
+        <div id="flash" class="flash"></div>
+      </div>
+      <audio
+        id="mix"
+        src="assets/mix.wav"
+        data-start="0"
+        data-duration="110.5"
+        data-track-index="3"
+        data-volume="1"
+      ></audio>
+    </div>
+    <script src="assets/scenes.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = window.__timelines["main"];
+    </script>
+  </body>
+</html>

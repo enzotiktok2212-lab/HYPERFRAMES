@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Capa França (cegonha)</title>
+    <script src="assets/d3.min.js"></script>
+    <script src="assets/geo.js"></script>
+    <script src="assets/lib.js"></script>
+    <script src="assets/dress.js"></script>
+    <script src="assets/yakut.js"></script>
+    <script src="assets/antar.js"></script>
+    <script src="assets/paris.js"></script>
+    <style>
+      @font-face {
+        font-family: "Rubik";
+        font-weight: 900;
+        src: url("assets/rubik-latin-900-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Rubik";
+        font-weight: 700;
+        src: url("assets/rubik-latin-700-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Lilita";
+        src: url("assets/lilita-one-latin-400-normal.woff2") format("woff2");
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: #2f8fe0;
+        font-family: "Rubik", sans-serif;
+      }
+      #c {
+        position: relative;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+      }
+      .t {
+        position: absolute;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-family: "Lilita";
+        color: #fff;
+        -webkit-text-stroke: 16px #1f1a17;
+        paint-order: stroke fill;
+        text-shadow: 0 12px 0 rgba(0, 0, 0, 0.35);
+        line-height: 0.98;
+        z-index: 20;
+      }
+      .card {
+        position: absolute;
+        background: #f6efe2;
+        border: 6px solid #1f1a17;
+        border-radius: 24px;
+        box-shadow: 0 14px 0 rgba(0, 0, 0, 0.3);
+        text-align: center;
+        color: #1f1a17;
+        padding: 10px 26px 14px;
+        z-index: 20;
+      }
+      .card b {
+        display: block;
+        font-weight: 900;
+        font-size: 84px;
+        line-height: 1;
+      }
+      .card span {
+        font-weight: 700;
+        font-size: 32px;
+        line-height: 1.1;
+      }
+      .vig {
+        position: absolute;
+        inset: 0;
+        z-index: 30;
+        background: radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0, 0, 30, 0.4) 100%);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="c"></div>
+    <script>
+      (function () {
+        const L = window.LIB,
+          K = "#1f1a17";
+        const SQ = location.hash === "#sq";
+        const H = SQ ? 1080 : 1920,
+          dy = SQ ? -400 : 0;
+        document.body.style.height = H + "px";
+        const c = document.getElementById("c");
+        c.style.height = H + "px";
+        const world = L.div(
+          c,
+          "",
+          `position:absolute;left:0;top:${dy}px;width:1080px;height:1920px`,
+        );
+        // mapa: Brasil embaixo à esquerda, França em cima à direita
+        const holder = L.div(world, "", "position:absolute;inset:0;z-index:1");
+        const svg = d3.select(holder).append("svg").attr("width", 1080).attr("height", 1920);
+        const defs = svg.append("defs");
+        const pb = defs
+          .append("pattern")
+          .attr("id", "pb")
+          .attr("patternContentUnits", "objectBoundingBox")
+          .attr("width", 1)
+          .attr("height", 1);
+        pb.append("rect").attr("width", 1).attr("height", 1).attr("fill", "#1a9b3c");
+        pb.append("path")
+          .attr("d", "M0.06 0.5 L0.5 0.12 L0.94 0.5 L0.5 0.88Z")
+          .attr("fill", "#ffd21f");
+        pb.append("circle").attr("cx", 0.5).attr("cy", 0.5).attr("r", 0.2).attr("fill", "#1f3a8a");
+        const pf = defs
+          .append("pattern")
+          .attr("id", "pf")
+          .attr("patternContentUnits", "objectBoundingBox")
+          .attr("width", 1)
+          .attr("height", 1);
+        pf.append("rect").attr("width", 0.34).attr("height", 1).attr("fill", "#1f3fa8");
+        pf.append("rect")
+          .attr("x", 0.33)
+          .attr("width", 0.34)
+          .attr("height", 1)
+          .attr("fill", "#fff");
+        pf.append("rect")
+          .attr("x", 0.66)
+          .attr("width", 0.34)
+          .attr("height", 1)
+          .attr("fill", "#e8283a");
+        const C0 = d3.geoInterpolate([-47.9, -15.8], [2.35, 48.86])(0.5);
+        const proj = d3
+          .geoOrthographic()
+          .scale(840)
+          .translate([520, 1240])
+          .rotate([-C0[0], -C0[1]])
+          .clipAngle(90);
+        const path = d3.geoPath(proj);
+        svg
+          .append("path")
+          .attr("d", path({ type: "Sphere" }))
+          .attr("fill", "#2f8fe0");
+        svg
+          .append("path")
+          .attr("d", path(d3.geoGraticule10()))
+          .attr("fill", "none")
+          .attr("stroke", "#fff")
+          .attr("stroke-opacity", 0.14)
+          .attr("stroke-width", 2);
+        svg
+          .append("path")
+          .attr("d", path(GEO.land))
+          .attr("fill", "#f2e2b8")
+          .attr("stroke", "#5a4a30")
+          .attr("stroke-width", 4);
+        svg
+          .append("path")
+          .attr("d", path(GEO.br))
+          .attr("fill", "url(#pb)")
+          .attr("stroke", K)
+          .attr("stroke-width", 6);
+        svg
+          .append("path")
+          .attr("d", path(GEO.fr))
+          .attr("fill", "url(#pf)")
+          .attr("stroke", K)
+          .attr("stroke-width", 6);
+        const BR0 = [-47.9, -15.8],
+          FR0 = [2.35, 48.86];
+        const ln = path({ type: "LineString", coordinates: [BR0, FR0] });
+        svg
+          .append("path")
+          .attr("d", ln)
+          .attr("fill", "none")
+          .attr("stroke", "#ff2d2d")
+          .attr("stroke-opacity", 0.35)
+          .attr("stroke-width", 30)
+          .attr("stroke-linecap", "round");
+        svg
+          .append("path")
+          .attr("d", ln)
+          .attr("fill", "none")
+          .attr("stroke", "#ff2d2d")
+          .attr("stroke-width", 12)
+          .attr("stroke-linecap", "round")
+          .attr("stroke-dasharray", "4 26");
+        const pBR = proj(BR0),
+          pFR = proj(FR0),
+          mid = proj(d3.geoInterpolate(BR0, FR0)(0.45));
+        window.__P = { pBR, pFR, mid };
+        // torre Eiffel + baguetes sobre Paris
+        L.svg(
+          world,
+          L.eiffel(130, 470, 460, { col: "#7a4a32", light: true }),
+          pFR[0] - 130,
+          pFR[1] - 470,
+          260,
+          490,
+          5,
+        );
+        [
+          [-230, 0, -26],
+          [-170, 20, -10],
+          [130, 10, 20],
+        ].forEach(([dx, dy2, r]) => {
+          const b = L.svg(world, L.baguette(true), pFR[0] + dx, pFR[1] - 300 + dy2, 74, 320, 6);
+          b.style.transform = `rotate(${r}deg)`;
+        });
+        L.svg(
+          world,
+          L.flagFR(10, 10, 130, 86, { pole: 150 }),
+          pFR[0] + 110,
+          pFR[1] - 60,
+          160,
+          260,
+          6,
+        );
+        // cegonha com o bebê + alfinete vermelho
+        const sk = L.div(
+          world,
+          "",
+          `position:absolute;left:${mid[0] - 220}px;top:${mid[1] - 170}px;width:440px;height:314px;z-index:8;transform:rotate(-24deg)`,
+          L.stork(),
+        );
+        void sk;
+        L.div(
+          world,
+          "",
+          `position:absolute;left:${mid[0] - 10}px;top:${mid[1] - 330}px;width:130px;height:174px;z-index:9`,
+          L.mapPin(),
+        );
+        L.svg(
+          world,
+          [0, 1, 2, 3]
+            .map(
+              (k) =>
+                `<path d="M${200 - k * 20} ${60 + k * 40} l-${150 + k * 30} ${60 + k * 10}" stroke="#ff2d2d" stroke-width="${12 - k * 2}" stroke-linecap="round"/>`,
+            )
+            .join(""),
+          mid[0] - 300,
+          mid[1] + 10,
+          300,
+          260,
+          7,
+        );
+        L.svg(
+          world,
+          L.flagBR(10, 10, 130, 86, { pole: 150 }),
+          pBR[0] - 230,
+          pBR[1] - 20,
+          160,
+          260,
+          6,
+        );
+        // título
+        const T0 = SQ ? 30 : 250;
+        L.div(
+          c,
+          "t",
+          `top:${T0}px;font-size:${SQ ? 72 : 86}px`,
+          `E SE VOCÊ TIVESSE<br/>NASCIDO EM`,
+        );
+        L.div(
+          c,
+          "t",
+          `top:${T0 + (SQ ? 140 : 170)}px;font-size:${SQ ? 150 : 190}px;-webkit-text-stroke:20px #1f1a17;transform:rotate(-3deg)`,
+          `<span style="color:#3a6aff">PA</span><span style="color:#ffffff">RI</span><span style="color:#ff3b4a">S?</span>`,
+        );
+        // cartões de contraste
+        L.div(
+          c,
+          "card",
+          `right:${SQ ? 30 : 50}px;top:${SQ ? 860 : 1440}px;transform:rotate(3deg);background:#ffd21f`,
+          `<b>R$ 17 mil</b><span>salário de<br/>classe média</span>`,
+        );
+        L.div(
+          c,
+          "card",
+          `left:${SQ ? 40 : 50}px;top:${SQ ? 470 : 760}px;transform:rotate(-4deg)`,
+          `<b style="color:#e8283a">15×</b><span>mais homicídios<br/>no Brasil 🇧🇷</span>`,
+        );
+        L.div(c, "", "position:absolute;inset:0", `<div class="vig"></div>`);
+      })();
+    </script>
+  </body>
+</html>

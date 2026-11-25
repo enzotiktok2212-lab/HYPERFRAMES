@@ -1,0 +1,12 @@
+renders/
+build/render.log
+build/voz_cut.wav
+build/music.wav
+.hyperframes/
+build/work/
+build/sh*/
+build/dbg.cjs
+build/mix_v2.wav
+build/partproj/
+build/mix_v3.wav
+build/check.png

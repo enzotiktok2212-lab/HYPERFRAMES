@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Capa Iacútia</title>
+    <script src="assets/gsap.min.js"></script>
+    <script src="assets/d3.min.js"></script>
+    <script src="assets/geo.js"></script>
+    <script src="assets/lib.js"></script>
+    <script src="assets/dress.js"></script>
+    <script src="assets/yakut.js"></script>
+    <style>
+      @font-face {
+        font-family: "Rubik";
+        font-weight: 900;
+        src: url("assets/rubik-latin-900-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Rubik";
+        font-weight: 700;
+        src: url("assets/rubik-latin-700-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Lilita";
+        src: url("assets/lilita-one-latin-400-normal.woff2") format("woff2");
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: #f2c48a;
+        font-family: "Rubik", sans-serif;
+      }
+      #c {
+        position: relative;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: linear-gradient(#f59a5a 0%, #f6c27a 35%, #bfe0ee 70%);
+      }
+      .t {
+        position: absolute;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-family: "Lilita";
+        color: #fff;
+        -webkit-text-stroke: 16px #1f1a17;
+        paint-order: stroke fill;
+        text-shadow: 0 12px 0 rgba(0, 0, 0, 0.35);
+        line-height: 0.98;
+      }
+      .y {
+        color: #ffd21f;
+      }
+      .card {
+        position: absolute;
+        background: #f6efe2;
+        border: 6px solid #1f1a17;
+        border-radius: 24px;
+        box-shadow: 0 14px 0 rgba(0, 0, 0, 0.3);
+        text-align: center;
+        color: #1f1a17;
+        padding: 14px 30px 18px;
+      }
+      .card b {
+        display: block;
+        font-family: "Rubik";
+        font-weight: 900;
+        font-size: 92px;
+        color: #c8553d;
+        line-height: 1;
+      }
+      .card span {
+        font-weight: 700;
+        font-size: 34px;
+      }
+      .tag {
+        position: absolute;
+        padding: 12px 26px;
+        border-radius: 40px;
+        background: #c2185b;
+        color: #fff;
+        font-weight: 900;
+        font-size: 40px;
+        border: 5px solid #1f1a17;
+      }
+      .vig {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          ellipse at 50% 50%,
+          transparent 55%,
+          rgba(40, 20, 0, 0.35) 100%
+        );
+      }
+    </style>
+  </head>
+  <body>
+    <div id="c"></div>
+    <script>
+      (function () {
+        const L = window.LIB,
+          K = "#1f1a17";
+        const SQ = location.hash === "#sq";
+        const H = SQ ? 1080 : 1920,
+          dy = SQ ? -350 : 0;
+        document.body.style.height = H + "px";
+        const c = document.getElementById("c");
+        c.style.height = H + "px";
+        const world = L.div(
+          c,
+          "",
+          `position:absolute;left:0;top:${dy}px;width:1080px;height:1920px`,
+        );
+        L.svg(world, L.yakutskPan(), 0, 0, 1080, 1920, 1);
+        L.svg(world, L.flakes(90, 5, 0, 1920), 0, 0, 1080, 1920, 2);
+        // personagens: Dmitri congelado e uma russa loira
+        L.p(
+          world,
+          {
+            style: "short",
+            hair: "#16110d",
+            skin: L.YSKIN,
+            narrow: true,
+            top: "#d52b1e",
+            parka: "#d52b1e",
+            fur: "#e9dcc4",
+            ushanka: "#5a3a2a",
+            scarfN: "#f2c14e",
+            bottom: "#2a3a5a",
+            boots: "#4a3020",
+            frost: true,
+            arms: "cold",
+            expr: "open",
+          },
+          380,
+          1660,
+          640,
+          6,
+        );
+        L.p(
+          world,
+          {
+            style: "long",
+            hair: "#f2d27a",
+            skin: "#f6dcc0",
+            dress: true,
+            parka: "#f6f3ea",
+            top: "#f6f3ea",
+            long: true,
+            fur: "#ffffff",
+            earrings: true,
+            arms: "hip",
+            expr: "smile",
+          },
+          720,
+          1660,
+          620,
+          6,
+        );
+        L.svg(world, L.heart(), 830, 960, 80, 72, 7);
+        // termômetro grande
+        const th = L.svg(world, L.thermo("#2f7de0"), 70, 820, 170, 680, 7);
+        th.querySelector(".merc").style.transform = "scaleY(.06)";
+        // globo com pin
+        const g = L.div(
+          world,
+          "",
+          "position:absolute;left:770px;top:1120px;width:300px;height:340px;z-index:10;transform:scale(.9);transform-origin:0 0",
+        );
+        const sv = d3.select(g).append("svg").attr("width", 300).attr("height", 340);
+        const pr = d3
+            .geoOrthographic()
+            .scale(130)
+            .translate([150, 200])
+            .rotate([-125, -45])
+            .clipAngle(90),
+          pa = d3.geoPath(pr);
+        sv.append("path")
+          .attr("d", pa({ type: "Sphere" }))
+          .attr("fill", "#1f8cf0")
+          .attr("stroke", K)
+          .attr("stroke-width", 6);
+        sv.append("path")
+          .attr("d", pa(GEO.land110))
+          .attr("fill", "#5fd35a")
+          .attr("stroke", "#1e4d1c")
+          .attr("stroke-width", 2);
+        sv.append("path")
+          .attr("d", pa(GEO.ht))
+          .attr("fill", "#3fa0e0")
+          .attr("stroke", K)
+          .attr("stroke-width", 3);
+        const p = pr([129.7, 62]);
+        sv.append("path")
+          .attr("d", `M${p[0] - 8} ${p[1] - 70} L${p[0]} ${p[1]} L${p[0] + 8} ${p[1] - 70}Z`)
+          .attr("fill", "#ff3b30")
+          .attr("stroke", K)
+          .attr("stroke-width", 4);
+        sv.append("circle")
+          .attr("cx", p[0])
+          .attr("cy", p[1] - 84)
+          .attr("r", 24)
+          .attr("fill", "#fff")
+          .attr("stroke", K)
+          .attr("stroke-width", 6);
+        sv.append("circle")
+          .attr("cx", p[0])
+          .attr("cy", p[1] - 84)
+          .attr("r", 9)
+          .attr("fill", K);
+        // textos
+        const T0 = SQ ? 34 : 250;
+        L.div(
+          c,
+          "t",
+          `top:${T0}px;font-size:${SQ ? 80 : 92}px;z-index:20`,
+          `ONDE VOCÊ VAI NASCER<br/><span class="y">DESSA VEZ?</span>`,
+        );
+        // RÚSSIA grande, letras nas cores da bandeira + bandeira
+        const ry = T0 + (SQ ? 178 : 205),
+          rs = SQ ? 118 : 150;
+        const rb = L.div(
+          c,
+          "",
+          `position:absolute;left:0;right:0;top:${ry}px;height:${rs * 1.05}px;z-index:20;transform:rotate(-3deg)`,
+        );
+        const word = (css) =>
+          `<div style="position:absolute;left:0;right:0;top:0;text-align:center;padding-left:${SQ ? 120 : 150}px;font-family:Rubik;font-weight:900;font-size:${rs}px;line-height:1;letter-spacing:2px;white-space:nowrap;${css}">RÚSSIA</div>`;
+        rb.innerHTML =
+          word(
+            "color:#1f1a17;-webkit-text-stroke:26px #1f1a17;text-shadow:0 12px 0 rgba(0,0,0,.35)",
+          ) +
+          word(
+            "background:linear-gradient(#ffffff 0 36%,#1c3f9e 36% 66%,#d52b1e 66%);-webkit-background-clip:text;background-clip:text;color:transparent",
+          );
+        const fw = SQ ? 150 : 190;
+        const fl = L.svg(
+          c,
+          L.flagRU(10, 14, fw, fw * 0.66, { pole: fw * 0.95 }),
+          SQ ? 110 : 60,
+          ry - (SQ ? 14 : 20),
+          fw + 30,
+          fw * 1.7,
+          21,
+        );
+        fl.style.transform = "rotate(-8deg)";
+        L.div(
+          c,
+          "t",
+          `top:${ry + rs + (SQ ? 8 : 14)}px;font-size:${SQ ? 44 : 54}px;z-index:20;-webkit-text-stroke:11px #1f1a17;transform:rotate(-3deg);white-space:nowrap`,
+          "Iacútia",
+        );
+        L.div(
+          c,
+          "card",
+          `left:330px;top:${T0 + (SQ ? 380 : 470)}px;z-index:20;transform:rotate(-3deg)`,
+          `<b style="color:#2f7de0;font-size:120px">-64°C</b><span>a cidade grande<br/>mais fria do mundo</span>`,
+        );
+        L.div(c, "", "position:absolute;inset:0;z-index:30", `<div class="vig"></div>`);
+      })();
+    </script>
+  </body>
+</html>
